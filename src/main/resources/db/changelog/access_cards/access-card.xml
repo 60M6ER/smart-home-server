@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="createAccessCard" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="access_cards"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="access_cards">
+            <column name="id" type="bigserial">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="card_id" type="bigserial">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_id" type="bigserial">
+            </column>
+            <column name="work" type="boolean"/>
+
+        </createTable>
+
+        <addPrimaryKey tableName="access_cards" columnNames="id" constraintName="access_cards.pk"/>
+        <addForeignKeyConstraint baseTableName="access_cards" baseColumnNames="user_id" constraintName="users_cards" referencedTableName="users"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

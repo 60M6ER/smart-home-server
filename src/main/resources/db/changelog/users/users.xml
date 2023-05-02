@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="createUsers" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="users">
+            <column name="id" type="bigserial">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(80)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(150)"/>
+
+        </createTable>
+
+        <addPrimaryKey tableName="users" columnNames="id" constraintName="users.pk"/>
+    </changeSet>
+
+    <changeSet id="addTelegramKey" author="larionov">
+        <addColumn tableName="users">
+            <column name="telegram_id" type="bigserial">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="addTelegramChatKey" author="larionov">
+        <addColumn tableName="users">
+            <column name="chat_id" type="bigserial">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="users-1" author="larionov">
+        <addColumn tableName="users">
+            <column name="need_change_password" type="boolean"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

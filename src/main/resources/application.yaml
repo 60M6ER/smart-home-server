@@ -1,0 +1,25 @@
+server:
+  port: ${SPRING_PORT:8080}
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${SPRING_DB_URL:192.170.0.100:5432}/${SPRING_DB_NAME:db_home_server}
+    username: ${SPRING_DB_USER:home_server_user}
+    password: ${SPRING_DB_PASSWORD:157456}
+  jpa:
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+telegram_bot:
+  username: ${SPRING_TELEGRAM_USERNAME:BombersHomeBot}
+  token: ${SPRING_TELEGRAM_TOKEN:6219525923:AAF0OQFG_T2Xm-p_p_bsMdynKs4yXnHrXnE}
+user:
+  username: ${SPRING_USERNAME:administrator}
+  password: ${SPRING_PASS:123456789}
+  name: ${SPRING_NAME:Хозяин}
+mqtt:
+  url: ${MQTT_URL:192.170.0.100}
+  port: ${MQTT_PORT:1883}
+  user: ${MQTT_USER:iot_user}
+  password: ${MQTT_PASS:pass_iot}
+  id: ${MQTT_ID:home_server}
