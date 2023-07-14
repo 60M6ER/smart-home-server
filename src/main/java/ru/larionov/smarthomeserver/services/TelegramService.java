@@ -95,6 +95,7 @@ public class TelegramService {
         List<KeyboardButton> buttonsMenu = new ArrayList<>();
         buttonsMenu.add(KeyboardButton.builder().text("Настройки").build());
         buttonsMenu.add(KeyboardButton.builder().text("Безопастность").build());
+        buttonsMenu.add(KeyboardButton.builder().text("Торговля").build());
         ReplyKeyboardMarkup markup = ReplyKeyboardMarkup.builder().keyboardRow(new KeyboardRow(buttonsMenu))
                 .resizeKeyboard(true).build();
         SendMessage message = new SendMessage(chatId.toString(), "");
