@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="bots-1" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="bots"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="bots">
+
+            <column name="id" type="uuid">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="pair" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="fiat" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="min_amount" type="float">
+            </column>
+
+            <column name="amount_at_percent" type="boolean">
+            </column>
+
+            <column name="profit" type="float">
+            </column>
+
+            <column name="step_to_bay" type="float">
+            </column>
+
+            <column name="step_at_percent" type="boolean">
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey tableName="bots" columnNames="id" constraintName="bot.pk"/>
+    </changeSet>
+
+    <changeSet id="bots-2" author="larionov">
+
+        <addColumn tableName="bots">
+            <column name="equal_steps" type="boolean"></column>
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>

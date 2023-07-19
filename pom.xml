@@ -6,6 +6,7 @@
 
     <groupId>ru.bomber</groupId>
     <artifactId>smart-home-server</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -16,6 +17,7 @@
     <modules>
         <module>server</module>
         <module>trader</module>
+        <module>core</module>
     </modules>
 
 </project>

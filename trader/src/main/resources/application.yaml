@@ -10,6 +10,12 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+mqtt:
+  url: ${MQTT_URL:192.170.0.100}
+  port: ${MQTT_PORT:1883}
+  user: ${MQTT_USER:iot_user}
+  password: ${MQTT_PASS:pass_iot}
+  id: ${MQTT_ID:trader_service}
 trader:
   api_key: ${T_API_KEY:C0Z0T63A-EXFPG8ZU-6D91D8Z7-9N5TIJGG}
   secret_key: ${T_SECRET_KEY:9032f0638b9099471e8b73457d5d7ab6a6dfa6c16e992f34230584f7674c6462d437f4ab13dcc7cf332d72481555ca86a89bad8d1627213157d1f6b5b4ab699a}
