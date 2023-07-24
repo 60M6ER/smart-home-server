@@ -3,6 +3,8 @@ package ru.bomber.trader.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
+import ru.bomber.core.mqtt.trader.models.StrategyType;
 
 import java.util.UUID;
 
@@ -23,8 +25,8 @@ public class Bot {
     @Column(name = "pair")
     private String pair;
 
-    @Column(name = "fiat")
-    private String fiat;
+    @Column(name = "base_instrument")
+    private String baseInstrument;
 
     @Column(name = "min_amount")
     private Double minAmount;
@@ -43,4 +45,30 @@ public class Bot {
 
     @Column(name = "equal_steps")
     private Boolean equalSteps;
+
+    @Column(name = "strategy_type")
+    @Enumerated(EnumType.ORDINAL)
+    private StrategyType strategyType;
+
+    @Column(name = "active")
+    private Boolean active;
+
+    @Column(name = "exchange_vendor")
+    @Enumerated(EnumType.ORDINAL)
+    private ExchangeVendor vendor;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Bot bot = (Bot) o;
+
+        return id.equals(bot.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

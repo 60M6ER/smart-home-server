@@ -4,26 +4,25 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.bomber.smarthomeserver.model.telegram.TelegramChatType;
-import ru.bomber.smarthomeserver.services.telegram.TelegramConstants;
 import ru.bomber.smarthomeserver.model.User;
 import ru.bomber.smarthomeserver.services.TelegramService;
+import ru.bomber.smarthomeserver.services.telegram.TelegramConstants;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Component
-public class StartCommandHandler extends BaseCommandHandler implements CommandService{
+public class TraderMenuCommandHandler extends BaseCommandHandler implements CommandService{
 
     private long dateCreate;
 
     @Autowired
-    public StartCommandHandler(TelegramService tService) {
+    public TraderMenuCommandHandler(TelegramService tService) {
         super(tService);
     }
 
@@ -36,42 +35,43 @@ public class StartCommandHandler extends BaseCommandHandler implements CommandSe
                 tService.sendTextMessage(TelegramConstants.UNREGISTERED_MESSAGE, chatId);
             }
         }else {
-            sendStartMenu(chatId,
-                    update,
-                    String.format(TelegramConstants.REGISTERED_MESSAGE,
-                            user.get().getName()));
+            sendTradingMenu(chatId, update);
         }
     }
 
-    private void sendStartMenu(Long chatId, Update update, String message) {
+    private void sendTradingMenu(Long chatId, Update update) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
         List<InlineKeyboardButton> firstLine = new ArrayList<>();
         InlineKeyboardButton settingsButton = new InlineKeyboardButton();
-        settingsButton.setText("Натсройки");
-        settingsButton.setCallbackData("/settings");
+        settingsButton.setText("Боты");
+        settingsButton.setCallbackData("/trading_bots");
         firstLine.add(settingsButton);
 
 
         InlineKeyboardButton securityButton = new InlineKeyboardButton();
-        securityButton.setText("Безопасность");
-        securityButton.setCallbackData("/security");
+        securityButton.setText("Операции со счетами ботов");
+        securityButton.setCallbackData("/trading_operations");
         firstLine.add(securityButton);
 
-        List<InlineKeyboardButton> secondLine = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-        inlineKeyboardButton.setText("Торговля");
-        inlineKeyboardButton.setCallbackData("/trading");
-        secondLine.add(inlineKeyboardButton);
 
         rowsInline.add(firstLine);
-        rowsInline.add(secondLine);
 
         inlineKeyboardMarkup.setKeyboard(rowsInline);
 
-        sendMenu(chatId, update, inlineKeyboardMarkup, message + "\nВыберите интерисующий раздел меню: ");
+        if (update.hasCallbackQuery()) {
+            EditMessageReplyMarkup message = new EditMessageReplyMarkup();
+            message.setChatId(chatId);
+            message.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+            message.setReplyMarkup(inlineKeyboardMarkup);
+            tService.getTHandler().sendMessage(message);
+        } else {
+            SendMessage message = new SendMessage(chatId.toString(), "Выберите интерисующий раздел меню: ");
+            message.setReplyMarkup(inlineKeyboardMarkup);
+            tService.sendMessage(message);
+        }
     }
 
     @Override
@@ -86,11 +86,11 @@ public class StartCommandHandler extends BaseCommandHandler implements CommandSe
 
     @Override
     public boolean isThisCommand(String text) {
-        return text.equals("/start");
+        return text.equals("/trading");
     }
 
     @Override
     public CommandHandler getInstance() {
-        return new StartCommandHandler(tService);
+        return new TraderMenuCommandHandler(tService);
     }
 }

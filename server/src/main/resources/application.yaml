@@ -24,4 +24,5 @@ mqtt:
   password: ${MQTT_PASS:pass_iot}
   id: ${MQTT_ID:home_server}
 trader:
+  host: ${TRADER_SERVICE_HOST:http://localhost:9031}
 

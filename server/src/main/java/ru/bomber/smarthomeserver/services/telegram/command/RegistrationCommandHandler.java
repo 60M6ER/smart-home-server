@@ -68,7 +68,6 @@ public class RegistrationCommandHandler extends BaseCommandHandler implements Co
                 try {
                     User fUser = tService.getUserByTelegramCode(args[0], chatId);
                     tService.delListener(chatId);
-                    tService.sendStartMenu(chatId);
                     if (!fUser.isNeedChangePassword()) {
                         tService.sendTextMessage(
                                 String.format(REGISTRATION_SUCCESSFUL, fUser.getName()),

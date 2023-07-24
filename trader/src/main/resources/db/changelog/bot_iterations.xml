@@ -9,9 +9,26 @@
 		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
 		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
-    <include file="bot.xml" relativeToChangelogFile="true"/>
-    <include file="bot_iterations.xml" relativeToChangelogFile="true"/>
-    <include file="balance_operations.xml" relativeToChangelogFile="true"/>
+    <changeSet id="bot_iterations-1" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="bot_iterations"/>
+            </not>
+        </preConditions>
 
+        <createTable tableName="bot_iterations">
+
+            <column name="id" type="uuid">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="iteration_id" type="uuid">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey tableName="bot_iterations" columnNames="id" constraintName="bot_iteration.pk"/>
+    </changeSet>
 
 </databaseChangeLog>

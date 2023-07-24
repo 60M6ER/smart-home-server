@@ -9,57 +9,40 @@
 		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
 		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
-    <changeSet id="bots-1" author="larionov">
+    <changeSet id="balance_operations-1" author="larionov">
         <preConditions>
             <not>
-                <tableExists tableName="bots"/>
+                <tableExists tableName="balance_operations"/>
             </not>
         </preConditions>
 
-        <createTable tableName="bots">
+        <createTable tableName="balance_operations">
 
             <column name="id" type="uuid">
                 <constraints unique="true" nullable="false"/>
             </column>
 
-            <column name="name" type="varchar(100)">
+            <column name="instrument" type="varchar(100)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="pair" type="varchar(50)">
+            <column name="source" type="int">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="base_instrument" type="varchar(50)">
+            <column name="amount" type="float8">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="min_amount" type="float"/>
-
-            <column name="amount_at_percent" type="boolean"/>
-
-            <column name="profit" type="float"/>
-
-            <column name="step_to_bay" type="float"/>
-
-            <column name="step_at_percent" type="boolean"/>
-
-            <column name="equal_steps" type="boolean"/>
-
-            <column name="strategy_type" type="int">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="active" type="boolean">
-                <constraints nullable="false"/>
-            </column>
-            <column name="exchange_vendor" type="int">
+            <column name="bot_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
 
         </createTable>
 
-        <addPrimaryKey tableName="bots" columnNames="id" constraintName="bot.pk"/>
+        <addPrimaryKey tableName="balance_operations" columnNames="id" constraintName="balance_operation.pk"/>
+        <addForeignKeyConstraint baseTableName="balance_operations" baseColumnNames="bot_id" constraintName="balance_operations_bot_fk"
+                                 referencedTableName="bots" referencedColumnNames="id"/>
     </changeSet>
 
 </databaseChangeLog>

@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.bomber.smarthomeserver.exeptions.CannotSendMessage;
@@ -50,6 +52,25 @@ public class TelegramHandler extends TelegramLongPollingBot {
     }
 
     public synchronized void sendMessage(SendMessage message) throws CannotSendMessage {
+        try {
+            execute(message);
+            log.debug("T_Bot successfully sent the message: ");
+        } catch (TelegramApiException e) {
+            log.error("T_Bot cannot sent message.", e);
+            throw new CannotSendMessage(e);
+        }
+    }
+    public synchronized void sendMessage(EditMessageText message) throws CannotSendMessage {
+        try {
+            execute(message);
+            log.debug("T_Bot successfully sent the message: ");
+        } catch (TelegramApiException e) {
+            log.error("T_Bot cannot sent message.", e);
+            throw new CannotSendMessage(e);
+        }
+    }
+
+    public synchronized void sendMessage(EditMessageReplyMarkup message) throws CannotSendMessage {
         try {
             execute(message);
             log.debug("T_Bot successfully sent the message: ");
