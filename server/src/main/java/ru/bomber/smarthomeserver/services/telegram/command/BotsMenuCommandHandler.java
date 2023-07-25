@@ -3,19 +3,17 @@ package ru.bomber.smarthomeserver.services.telegram.command;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import ru.bomber.core.mqtt.trader.models.BotDTO;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.BotDTO;
+import ru.bomber.core.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.Instrument;
 import ru.bomber.smarthomeserver.model.User;
-import ru.bomber.smarthomeserver.model.telegram.TelegramChatType;
 import ru.bomber.smarthomeserver.services.TelegramService;
+import ru.bomber.smarthomeserver.services.telegram.KeyboardCreator;
 import ru.bomber.smarthomeserver.services.telegram.TelegramConstants;
 import ru.bomber.smarthomeserver.services.trader.TraderService;
-
 import java.util.*;
 
 @Component
@@ -26,6 +24,10 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
 
     private static final String EXCHANGE_MESSAGE = "Вы ввели имя: %s\n" +
             "Выберетие биржу:";
+    private static final String VENDOR_ERROR = "Вы ввели не поддрживаемую биржу. Повторите ввод.";
+
+    private static final String PAIR_NAME_PART = "Введите сторку для поиска инструмена:";
+    private static final String FAIL_PAIR_NAME_PART = "Инструменты не найдены. Повторите ввод:";
 
 
     private final TraderService traderService;
@@ -69,7 +71,7 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
                 step++;
             }
             case 2 -> {
-                if (args[0].equals("/trading_create_bot")) {
+                if (args[0].equals("/trading_create_bot") || botDTO != null) {
                     botDTO = new BotDTO();
                     tService.sendTextMessage(NAME_MESSAGE, chatId);
                 }
@@ -82,6 +84,24 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
                             String.format(EXCHANGE_MESSAGE, botDTO.getName()));
                 }
                 step++;
+            }
+            case 4 -> {
+                if (botDTO != null) {
+                    try {
+                        botDTO.setVendor(ExchangeVendor.valueOf(args[0]));
+                        tService.sendTextMessage(PAIR_NAME_PART, chatId);
+                        step++;
+                    } catch (IllegalArgumentException e) {
+                        tService.sendTextMessage(VENDOR_ERROR, chatId);
+                    }
+                }
+
+            }
+            case 5 -> {
+                if (botDTO != null) {
+                    sendInstrumentsList(chatId, update, args[0]);
+                }
+
             }
         }
     }
@@ -153,6 +173,19 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
 
         inlineKeyboardMarkup.setKeyboard(rowsInline);
         sendMenu(chatId, update, inlineKeyboardMarkup, message, true);
+    }
+
+    private void sendInstrumentsList(Long chatId, Update update, String name_part) {
+        List<Instrument> instruments = traderService.getInstruments(botDTO.getVendor(), name_part);
+        if (instruments.size() == 0) {
+            tService.sendTextMessage(FAIL_PAIR_NAME_PART, chatId);
+        } else {
+            KeyboardCreator keyboardCreator = new KeyboardCreator(3);
+            instruments.forEach(i -> keyboardCreator.addButton(i.getInstrument(), i.getInstrument()));
+
+            sendMenu(chatId, update, keyboardCreator.build(), "Выбирите интсрумент для работы бота: ", true);
+            step++;
+        }
     }
 
     @Override

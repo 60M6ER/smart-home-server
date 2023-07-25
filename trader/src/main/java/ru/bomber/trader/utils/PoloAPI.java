@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import ru.bomber.trader.converter.FeeConverter;
 import ru.bomber.trader.converter.InstrumentConverter;
 import ru.bomber.trader.dto.FeeData;
-import ru.bomber.trader.dto.Instrument;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.core.trader.models.ExchangeVendor;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class PoloAPI implements ExchangeAPI {
     }
 
     @Override
-    public List<Instrument> getBalanceOfInstrument(String instrument) {
+    public List<Instrument> getInstruments(String instrument) {
         return restClient.getMarkets().stream()
                 .filter(market -> market.getSymbol().contains(instrument))
                 .map(InstrumentConverter::toDTO)
@@ -43,7 +43,7 @@ public class PoloAPI implements ExchangeAPI {
     }
 
     @Override
-    public List<Instrument> getBalanceOfInstrument() {
+    public List<Instrument> getInstruments() {
         return restClient.getMarkets().stream()
                 .map(InstrumentConverter::toDTO)
                 .collect(Collectors.toList());

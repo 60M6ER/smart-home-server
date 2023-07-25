@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.bomber.core.mqtt.exceptions.NotAvailableMqttService;
+import ru.bomber.core.exceptions.NotAvailableMqttService;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 

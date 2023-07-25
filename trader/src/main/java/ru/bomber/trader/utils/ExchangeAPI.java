@@ -1,8 +1,8 @@
 package ru.bomber.trader.utils;
 
 import ru.bomber.trader.dto.FeeData;
-import ru.bomber.trader.dto.Instrument;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.core.trader.models.ExchangeVendor;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ public interface ExchangeAPI {
     ExchangeVendor getVendor();
     FeeData getFee();
 
-    List<Instrument> getBalanceOfInstrument(String instrument);
-    List<Instrument> getBalanceOfInstrument();
+    List<Instrument> getInstruments(String instrument);
+    List<Instrument> getInstruments();
 
     Instrument getInstrument(String instrumentName);
 }

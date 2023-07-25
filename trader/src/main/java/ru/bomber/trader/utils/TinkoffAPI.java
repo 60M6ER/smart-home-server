@@ -1,8 +1,8 @@
 package ru.bomber.trader.utils;
 
 import ru.bomber.trader.dto.FeeData;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
-import ru.bomber.trader.dto.Instrument;
+import ru.bomber.core.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.Instrument;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
@@ -25,12 +25,12 @@ public class TinkoffAPI implements ExchangeAPI{
     }
 
     @Override
-    public List<Instrument> getBalanceOfInstrument(String instrument) {
+    public List<Instrument> getInstruments(String instrument) {
         return null;
     }
 
     @Override
-    public List<Instrument> getBalanceOfInstrument() {
+    public List<Instrument> getInstruments() {
         return null;
     }
 

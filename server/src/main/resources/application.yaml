@@ -7,7 +7,7 @@ spring:
     username: ${SPRING_DB_USER:home_server_user}
     password: ${SPRING_DB_PASSWORD:157456}
   jpa:
-    show-sql: true
+    show-sql: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
 telegram_bot:
@@ -25,4 +25,5 @@ mqtt:
   id: ${MQTT_ID:home_server}
 trader:
   host: ${TRADER_SERVICE_HOST:http://localhost:9031}
+
 

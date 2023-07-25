@@ -1,4 +1,4 @@
-package ru.bomber.core.mqtt.trader.models;
+package ru.bomber.core.trader.models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

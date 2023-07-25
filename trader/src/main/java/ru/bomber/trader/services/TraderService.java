@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.bomber.core.mqtt.MqttService;
 import ru.bomber.core.mqtt.Topics;
 import ru.bomber.trader.models.Bot;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.ExchangeVendor;
 import ru.bomber.trader.reposytory.BalanceOperationRepository;
 import ru.bomber.trader.reposytory.BalanceRepository;
 import ru.bomber.trader.reposytory.BotIterationRepository;
@@ -111,7 +111,7 @@ public class TraderService {
         });
     }
 
-    private ExchangeAPI getAPI(ExchangeVendor vendor) {
+    public ExchangeAPI getAPI(ExchangeVendor vendor) {
         Optional<ExchangeAPI> exchangeAPI = apis.stream().filter(api -> api.getVendor().equals(vendor)).findFirst();
         if (exchangeAPI.isPresent()) {
             return exchangeAPI.get();

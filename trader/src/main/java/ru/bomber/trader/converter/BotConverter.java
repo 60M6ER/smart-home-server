@@ -1,6 +1,6 @@
 package ru.bomber.trader.converter;
 
-import ru.bomber.core.mqtt.trader.models.BotDTO;
+import ru.bomber.core.trader.models.BotDTO;
 import ru.bomber.trader.models.Bot;
 
 public class BotConverter {

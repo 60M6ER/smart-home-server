@@ -1,4 +1,4 @@
-package ru.bomber.core.mqtt.exceptions;
+package ru.bomber.core.exceptions;
 
 public class NotAvailableMqttService extends RuntimeException{
 

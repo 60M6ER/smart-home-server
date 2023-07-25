@@ -1,4 +1,4 @@
-package ru.bomber.core.mqtt.trader.models;
+package ru.bomber.core.trader.models;
 
 public enum ExchangeVendor {
     TINKOFF, POLONIEX;

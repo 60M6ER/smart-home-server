@@ -1,8 +1,8 @@
 package ru.bomber.trader.converter;
 
 import com.poloniex.api.client.model.Market;
-import ru.bomber.trader.dto.Instrument;
-import ru.bomber.trader.models.StateInstrument;
+import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.core.trader.models.StateInstrument;
 
 public class InstrumentConverter {
 

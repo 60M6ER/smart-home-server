@@ -9,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
 import ru.bomber.core.mqtt.MqttService;
 import ru.bomber.core.mqtt.Topics;
-import ru.bomber.core.mqtt.exceptions.NotAvailableMqttService;
+import ru.bomber.core.exceptions.NotAvailableMqttService;
 import ru.bomber.smarthomeserver.model.telegram.Chat;
 import ru.bomber.smarthomeserver.model.telegram.TelegramChatType;
 import ru.bomber.smarthomeserver.repository.telegram.ChatRepository;

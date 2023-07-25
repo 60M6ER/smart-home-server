@@ -1,4 +1,4 @@
-package ru.bomber.core.mqtt.http;
+package ru.bomber.core.http;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

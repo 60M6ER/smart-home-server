@@ -3,8 +3,8 @@ package ru.bomber.trader.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import ru.bomber.core.mqtt.trader.models.ExchangeVendor;
-import ru.bomber.core.mqtt.trader.models.StrategyType;
+import ru.bomber.core.trader.models.ExchangeVendor;
+import ru.bomber.core.trader.models.StrategyType;
 
 import java.util.UUID;
 

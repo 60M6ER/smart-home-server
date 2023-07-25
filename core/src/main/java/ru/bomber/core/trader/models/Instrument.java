@@ -1,8 +1,7 @@
-package ru.bomber.trader.dto;
+package ru.bomber.core.trader.models;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.bomber.trader.models.StateInstrument;
 
 @Setter
 @Getter
