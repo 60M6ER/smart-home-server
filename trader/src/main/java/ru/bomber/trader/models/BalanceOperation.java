@@ -30,4 +30,7 @@ public class BalanceOperation {
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "bot_id")
     private Bot bot;
+
+    @Column(name = "iteration")
+    private UUID iteration;
 }

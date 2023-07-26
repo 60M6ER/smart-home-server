@@ -1,6 +1,7 @@
 package ru.bomber.smarthomeserver.services.telegram.command;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.bomber.core.trader.models.BotDTO;
 import ru.bomber.core.trader.models.ExchangeVendor;
 import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.core.trader.models.StrategyType;
 import ru.bomber.smarthomeserver.model.User;
 import ru.bomber.smarthomeserver.services.TelegramService;
 import ru.bomber.smarthomeserver.services.telegram.KeyboardCreator;
@@ -17,6 +19,7 @@ import ru.bomber.smarthomeserver.services.trader.TraderService;
 import java.util.*;
 
 @Component
+@Slf4j
 public class BotsMenuCommandHandler extends BaseCommandHandler implements CommandService{
 
     private static final String NAME_MESSAGE = "Создаем бота\n" +
@@ -29,10 +32,24 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
     private static final String PAIR_NAME_PART = "Введите сторку для поиска инструмена:";
     private static final String FAIL_PAIR_NAME_PART = "Инструменты не найдены. Повторите ввод:";
 
+    private static final String PROFIT = "Укажите профит с каждой сделки:";
+    private static final String STEP = "Укажите размер шага для каждой закупки:\n" +
+            "(Для укзания в процентах просто добавьте знак \"%\")";
+
+    private static final String EQUAL_STEPS = "Закупать всегда равными долями:";
+    private static final String STRATEGY = "Выбирете стратегию";
+    private static final String BOT_SAVED = "Бот %s успешно слхранен.";
+
+    private static final String BOT_EDIT_MESS = "Бот %s %s. \n";
+
 
     private final TraderService traderService;
 
     private BotDTO botDTO;
+
+    private List<BotDTO> bots;
+
+    private boolean botEdit = false;
 
     @Autowired
     public BotsMenuCommandHandler(TelegramService tService, TraderService traderService) {
@@ -71,17 +88,34 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
                 step++;
             }
             case 2 -> {
-                if (args[0].equals("/trading_create_bot") || botDTO != null) {
+                if (args[0].equals("/trading_create_bot") || (botDTO != null && !botEdit)) {
                     botDTO = new BotDTO();
                     tService.sendTextMessage(NAME_MESSAGE, chatId);
+                }
+                Optional<BotDTO> bot = bots.stream().filter(b -> b.getId().toString().equals(args[0])).findFirst();
+                if (bot.isPresent() || botEdit) {
+                    botDTO = bot.get();
+                    botEdit = true;
+                    sendBotMenu(chatId, update);
                 }
                 step++;
             }
             case 3 -> {
-                if (botDTO != null) {
+                if (botDTO != null && !botEdit) {
                     botDTO.setName(args[0]);
                     sendExchangeList(chatId, update,
                             String.format(EXCHANGE_MESSAGE, botDTO.getName()));
+                }
+                if (botEdit && args[0].equals("/on_off")) {
+                    tService.delListener(chatId);
+                    botDTO.setActive(!botDTO.getActive());
+                    try {
+                        traderService.saveBot(botDTO);
+                        tService.sendTextMessage(String.format("Бот %s %s.", botDTO.getName(), botDTO.getActive() ? "включен" : "выключен"), chatId);
+                    }catch (Exception e) {
+                        tService.sendTextMessage("Не удалось сохранить бота", chatId);
+                        log.error("Возникла ошибка при сохранении бота: ", e);
+                    }
                 }
                 step++;
             }
@@ -103,9 +137,61 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
                 }
 
             }
+            case 6 -> {
+                if (botDTO != null) {
+                    botDTO.setPair(args[0]);
+                    tService.sendTextMessage(PROFIT, chatId);
+                }
+                step++;
+            }
+            case 7 -> {
+                if (botDTO != null) {
+                    botDTO.setProfit(clearPercentSymbol(args[0]));
+                    tService.sendTextMessage(STEP, chatId);
+                }
+                step++;
+            }
+            case 8 -> {
+                if (botDTO != null) {
+                    botDTO.setStepAtPercent(args[0].contains("%"));
+                    botDTO.setStepToBay(clearPercentSymbol(args[0]));
+
+                    KeyboardCreator creator = new KeyboardCreator(2);
+                    creator.addButton("Да", "1");
+                    creator.addButton("Нет", "2");
+                    sendMenu(chatId, update, creator.build(), EQUAL_STEPS, true);
+                }
+                step++;
+            }
+            case 9 -> {
+                if (botDTO != null) {
+                    botDTO.setEqualSteps(args[0].equals("1"));
+                    sendStrategy(chatId, update);
+                }
+                step++;
+            }
+            case 10 -> {
+                if (botDTO != null) {
+                    botDTO.setStrategyType(StrategyType.valueOf(args[0]));
+                    if (botDTO.getActive() == null)
+                        botDTO.setActive(false);
+                    tService.delListener(chatId);
+                    try {
+                        traderService.saveBot(botDTO);
+                        tService.sendTextMessage(String.format(BOT_SAVED, botDTO.getName()), chatId);
+                    }catch (Exception e) {
+                        tService.sendTextMessage("Не удалось сохранить бота", chatId);
+                        log.error("Возникла ошибка при сохранении бота: ", e);
+                    }
+                }
+                step++;
+            }
         }
     }
 
+    private Double clearPercentSymbol(String param) {
+        return Double.parseDouble(param.replace("%", ""));
+    }
     private void sendTradingMenu(Long chatId, Update update) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -143,7 +229,9 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
         firstLine.add(settingsButton);
         rowsInline.add(firstLine);
 
-        traderService.getBotList("").stream().forEach(b -> {
+        bots = traderService.getBotList("");
+
+        bots.forEach(b -> {
             List<InlineKeyboardButton> line = new ArrayList<>();
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(b.getName());
@@ -186,6 +274,19 @@ public class BotsMenuCommandHandler extends BaseCommandHandler implements Comman
             sendMenu(chatId, update, keyboardCreator.build(), "Выбирите интсрумент для работы бота: ", true);
             step++;
         }
+    }
+
+    private void sendStrategy(Long chatId, Update update) {
+        KeyboardCreator keyboardCreator = new KeyboardCreator(3);
+        Arrays.stream(StrategyType.values()).forEach(s -> keyboardCreator.addButton(s.name(), s.name()));
+
+        sendMenu(chatId, update, keyboardCreator.build(), STRATEGY, true);
+    }
+
+    private void sendBotMenu(Long chatId, Update update) {
+        KeyboardCreator creator = new KeyboardCreator(2);
+        creator.addButton(botDTO.getActive() ? "Выключить" : "Включить", "/on_off");
+        sendMenu(chatId, update, creator.build(), String.format(BOT_EDIT_MESS, botDTO.getName(), botDTO.getActive() ? "включен" : "выключен"));
     }
 
     @Override

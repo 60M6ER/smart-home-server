@@ -43,6 +43,7 @@ public class KeyboardCreator {
     }
 
     public InlineKeyboardMarkup build() {
+        rowsInline.add(line);
         markup.setKeyboard(rowsInline);
         return markup;
     }

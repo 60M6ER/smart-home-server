@@ -1,5 +1,6 @@
 package ru.bomber.trader.utils;
 
+import com.poloniex.api.client.model.request.OrderRequest;
 import com.poloniex.api.client.rest.PoloRestClient;
 import lombok.extern.slf4j.Slf4j;
 import ru.bomber.trader.converter.FeeConverter;
@@ -7,6 +8,7 @@ import ru.bomber.trader.converter.InstrumentConverter;
 import ru.bomber.trader.dto.FeeData;
 import ru.bomber.core.trader.models.Instrument;
 import ru.bomber.core.trader.models.ExchangeVendor;
+import ru.bomber.trader.models.Order;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +54,13 @@ public class PoloAPI implements ExchangeAPI {
     @Override
     public Instrument getInstrument(String instrumentName) {
         return InstrumentConverter.toDTO(restClient.getMarket(instrumentName).get(0));
+    }
+
+    @Override
+    public Order createOrReplaceOrder(Order order) {
+        OrderRequest request = new OrderRequest(order.getPair(), order.getOperation().name(), "GTC", order.getTypeOrder().name(), "SPOT")
+        restClient.placeOrder();
+
     }
 
 

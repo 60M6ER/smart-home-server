@@ -1,10 +1,9 @@
 package ru.bomber.trader.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import retrofit2.http.Body;
+import ru.bomber.core.http.Response;
 import ru.bomber.core.trader.models.BotDTO;
 import ru.bomber.trader.services.BotService;
 
@@ -20,5 +19,10 @@ public class BotController {
     @GetMapping()
     private List<BotDTO> getBotList(@RequestParam(name = "name_part", required = false, defaultValue = "") String namePart) {
         return botService.getListBots(namePart);
+    }
+
+    @PostMapping
+    private Response saveBot(@RequestBody BotDTO botDTO) {
+        return botService.saveBot(botDTO);
     }
 }

@@ -38,6 +38,8 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="iteration" type="UUID"/>
+
         </createTable>
 
         <addPrimaryKey tableName="balance_operations" columnNames="id" constraintName="balance_operation.pk"/>

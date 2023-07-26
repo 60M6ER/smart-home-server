@@ -1,6 +1,7 @@
 package ru.bomber.trader.utils;
 
 import lombok.RequiredArgsConstructor;
+import ru.bomber.core.trader.models.Instrument;
 import ru.bomber.trader.models.Bot;
 import ru.bomber.trader.models.BotIteration;
 import ru.bomber.trader.reposytory.BalanceOperationRepository;
@@ -19,9 +20,26 @@ public abstract class BaseStrategy implements Strategy {
     protected final BalanceOperationRepository balanceOperationRepository;
 
     protected BotIteration curIteration;
+    protected Double baseBalance;
+    protected Double quoteBalance;
+
+    private Instrument instrument;
 
     @Override
     public UUID getId() {
         return bot.getId();
+    }
+
+    protected Instrument getInstrument() {
+        if (instrument == null) {
+            instrument = exchangeAPI.getInstrument(bot.getPair());
+        }
+        return instrument;
+    }
+
+    protected void createIteration() {
+        BotIteration iteration = new BotIteration(bot.getId(), UUID.randomUUID());
+        botIterationRepository.save(iteration);
+        curIteration = iteration;
     }
 }

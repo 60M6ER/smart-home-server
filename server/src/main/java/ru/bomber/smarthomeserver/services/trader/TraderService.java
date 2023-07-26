@@ -3,8 +3,12 @@ package ru.bomber.smarthomeserver.services.trader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.CoreSubscriber;
+import reactor.core.publisher.Mono;
 import ru.bomber.core.trader.models.BotDTO;
 import ru.bomber.core.trader.models.ExchangeVendor;
 import ru.bomber.core.trader.models.Instrument;
@@ -36,6 +40,8 @@ public class TraderService {
     public void saveBot(BotDTO botDTO) {
         webClient.post()
                 .uri(String.join("", host, "/v1/bots"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(botDTO)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();

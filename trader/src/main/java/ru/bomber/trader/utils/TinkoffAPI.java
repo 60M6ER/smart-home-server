@@ -3,6 +3,7 @@ package ru.bomber.trader.utils;
 import ru.bomber.trader.dto.FeeData;
 import ru.bomber.core.trader.models.ExchangeVendor;
 import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.trader.models.Order;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
@@ -36,6 +37,11 @@ public class TinkoffAPI implements ExchangeAPI{
 
     @Override
     public Instrument getInstrument(String instrumentName) {
+        return null;
+    }
+
+    @Override
+    public Order createOrReplaceOrder(Order order) {
         return null;
     }
 }
