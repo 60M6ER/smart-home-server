@@ -37,7 +37,7 @@ public class TraderSubscriber implements IMqttMessageListener {
             log.info("Trader subscriber successfully started.");
         } catch (MqttException|NotAvailableMqttService e) {
             log.info("Trader subscriber can not started.");
-            throw new RuntimeException("MQTT service didn't subscribe to trader logs.", e);
+            //throw new RuntimeException("MQTT service didn't subscribe to trader logs.", e);
         }
     }
 

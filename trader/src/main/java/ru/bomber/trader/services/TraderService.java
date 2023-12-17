@@ -16,9 +16,13 @@ import ru.bomber.trader.reposytory.BalanceRepository;
 import ru.bomber.trader.reposytory.BotIterationRepository;
 import ru.bomber.trader.reposytory.BotRepository;
 import ru.bomber.trader.utils.*;
+import ru.bomber.trader.utils.timer.TimerListener;
+import ru.bomber.trader.utils.timer.TimerProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,8 @@ public class TraderService {
     private final BotIterationRepository botIterationRepository;
     private final BalanceRepository balanceRepository;
     private final BalanceOperationRepository balanceOperationRepository;
+
+    private final TimerService timerService;
 
     @Value("${trader.api_key}")
     private String poloAPIKey;
@@ -139,7 +145,8 @@ public class TraderService {
                         exchangeAPI,
                         botIterationRepository,
                         balanceRepository,
-                        balanceOperationRepository);
+                        balanceOperationRepository,
+                        timerService);
         }
         return null;
     }

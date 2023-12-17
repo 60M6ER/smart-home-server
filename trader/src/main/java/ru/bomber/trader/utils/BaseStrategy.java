@@ -7,6 +7,7 @@ import ru.bomber.trader.models.BotIteration;
 import ru.bomber.trader.reposytory.BalanceOperationRepository;
 import ru.bomber.trader.reposytory.BalanceRepository;
 import ru.bomber.trader.reposytory.BotIterationRepository;
+import ru.bomber.trader.services.TimerService;
 
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ public abstract class BaseStrategy implements Strategy {
     protected final BotIterationRepository botIterationRepository;
     protected final BalanceRepository balanceRepository;
     protected final BalanceOperationRepository balanceOperationRepository;
+    protected final TimerService timerService;
 
     protected BotIteration curIteration;
     protected Double baseBalance;

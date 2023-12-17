@@ -17,7 +17,8 @@ public class Order {
 
     private String exchangeId;
 
-    private Double amount;
+    private Double quantity; //Base instrument (USD, RUB)
+    private Double amount; //Quote instrument (BTC, ETH. SBER)
 
     private Double price;
 

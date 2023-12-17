@@ -50,24 +50,29 @@ public class MqttService {
 //
 //            mqttClient.subscribe(Topics.READ_NEW_TOPIC, readCardListener);
         } catch (MqttException e) {
-            active = true;
-            throw new NotAvailableMqttService(e);
+            active = false;
+            //throw new NotAvailableMqttService(e);
+            log.warn("MQTT service is not available.");
         }
     }
 
     public void subscribe(String topic, IMqttMessageListener listener) throws MqttException,NotAvailableMqttService {
         if (!isActive()){
-            throw new NotAvailableMqttService("Not available in use.");
+            //throw new NotAvailableMqttService("Not available in use.");
+            log.warn("MQTT service is not available.");
+        } else {
+            mqttClient.subscribe(topic, listener);
         }
-        mqttClient.subscribe(topic, listener);
     }
 
     public void sendMessage(String topic, String message, int qos) throws MqttException,NotAvailableMqttService {
         if (!isActive()){
-            throw new NotAvailableMqttService("Not available in use.");
+            //throw new NotAvailableMqttService("Not available in use.");
+            log.warn("MQTT service is not available.");
+        } else {
+            MqttMessage mqttMessage = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
+            mqttMessage.setQos(qos);
+            mqttClient.publish(topic, mqttMessage);
         }
-        MqttMessage mqttMessage = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
-        mqttMessage.setQos(qos);
-        mqttClient.publish(topic, mqttMessage);
     }
 }

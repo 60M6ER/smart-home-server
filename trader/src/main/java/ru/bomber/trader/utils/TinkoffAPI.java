@@ -3,10 +3,13 @@ package ru.bomber.trader.utils;
 import ru.bomber.trader.dto.FeeData;
 import ru.bomber.core.trader.models.ExchangeVendor;
 import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.trader.dto.OrderBookDTO;
 import ru.bomber.trader.models.Order;
+import ru.tinkoff.piapi.contract.v1.GetOrderBookResponse;
 import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class TinkoffAPI implements ExchangeAPI{
 
@@ -42,6 +45,11 @@ public class TinkoffAPI implements ExchangeAPI{
 
     @Override
     public Order createOrReplaceOrder(Order order) {
+        return null;
+    }
+
+    @Override
+    public OrderBookDTO getOrderBook(String pair) {
         return null;
     }
 }

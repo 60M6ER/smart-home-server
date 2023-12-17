@@ -3,6 +3,7 @@ package ru.bomber.trader.utils;
 import ru.bomber.trader.dto.FeeData;
 import ru.bomber.core.trader.models.Instrument;
 import ru.bomber.core.trader.models.ExchangeVendor;
+import ru.bomber.trader.dto.OrderBookDTO;
 import ru.bomber.trader.models.Order;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface ExchangeAPI {
     Instrument getInstrument(String instrumentName);
 
     Order createOrReplaceOrder(Order order);
+
+    OrderBookDTO getOrderBook(String pair);
 }

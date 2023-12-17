@@ -2,10 +2,13 @@ package ru.bomber.trader.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.bomber.core.trader.models.StateInstrument;
+import ru.bomber.trader.dto.OrderBookDTO;
 import ru.bomber.trader.models.*;
 import ru.bomber.trader.reposytory.BalanceOperationRepository;
 import ru.bomber.trader.reposytory.BalanceRepository;
 import ru.bomber.trader.reposytory.BotIterationRepository;
+import ru.bomber.trader.services.TimerService;
+import ru.bomber.trader.utils.timer.TimerListener;
 import ru.bomber.trader.view.Balance;
 
 import java.util.Optional;
@@ -13,19 +16,24 @@ import java.util.UUID;
 
 
 @Slf4j
-public class DCAStrategy extends BaseStrategy {
+public class DCAStrategy extends BaseStrategy implements TimerListener {
 
+    private static final long START_ORDER_DELAY = 1000 * 60 * 5; //5 minutes
+
+    private static final String MESS_BOT = "Бот %s (%s): %s";
 
     public DCAStrategy(Bot bot,
                        ExchangeAPI exchangeAPI,
                        BotIterationRepository botIterationRepository,
                        BalanceRepository balanceRepository,
-                       BalanceOperationRepository balanceOperationRepository) {
+                       BalanceOperationRepository balanceOperationRepository,
+                       TimerService timerService) {
         super(bot,
                 exchangeAPI,
                 botIterationRepository,
                 balanceRepository,
-                balanceOperationRepository);
+                balanceOperationRepository,
+                timerService);
     }
 
     @Override
@@ -35,6 +43,9 @@ public class DCAStrategy extends BaseStrategy {
         exchangeAPI.getFee();
         if (!getInstrument().getState().equals(StateInstrument.NORMAL))
             throw new RuntimeException("Pair is not NORMAL status.");
+        exchangeAPI.getOrderBook(bot.getPair());
+        //createStartOrder();
+        timerService.addListener(this, "StartOrder", 2000);
     }
 
     @Override
@@ -69,13 +80,29 @@ public class DCAStrategy extends BaseStrategy {
     private void createStartOrder() {
         if (baseBalance.equals(0.0))
             throw new RuntimeException("Balance is 0. Continue is not allowed.");
+        OrderBookDTO orderBook = exchangeAPI.getOrderBook(bot.getPair());
         Order order = new Order();
         order.setPair(bot.getPair());
         order.setRoleOrder(RoleOrder.START);
-        order.setTypeOrder(TypeOrder.MARKET);
+        order.setTypeOrder(TypeOrder.LIMIT);
         order.setOperation(OrderOperation.BUY);
-        order.setAmount(bot.getStepAtPercent() ?
+        order.setQuantity(bot.getStepAtPercent() ?
                 baseBalance * bot.getStepToBay() / 100 :
                 bot.getStepToBay());
+        order.setPrice(orderBook.getAsk().get(0).getPrice());//First ask in order book
+        order.setAmount(order.getQuantity() * order.getPrice());
+        timerService.addListener(this, "StartOrder", 2000);
+        log.info(String.format(MESS_BOT,
+                bot.getName(),
+                bot.getId().toString(),
+                "Создан стартовый ордер по цене: " + order.getPrice().toString()));
+    }
+
+    @Override
+    public void onEventTimer(String marker) {
+        if (marker.equals("StartOrder")) {
+            log.info("Start order listener was listened");
+            timerService.delListener(getId());
+        }
     }
 }
