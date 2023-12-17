@@ -1,0 +1,46 @@
+version: '3.1'
+
+services:
+  postgres_hs:
+    image: postgres:15.2
+    container_name: postgres_hs
+    environment:
+      POSTGRES_PASSWORD: 157456
+      POSTGRES_USER: home_server_user
+      POSTGRES_DB: db_home_server
+    restart: always
+    ports:
+      - "10001:5432"
+    volumes:
+      - postgres_hs_data:/var/lib/postgres
+  hs_app:
+    build:
+      context: hs_app
+      dockerfile: Dockerfile.development
+    command: java -jar ./app.jar
+    container_name: hs_app
+    environment:
+      - SPRING_PORT=8093
+      - SPRING_DB_URL=postgres_hs
+      - SPRING_DB_NAME=db_home_server
+      - SPRING_DB_USER=home_server_user
+      - SPRING_DB_PASSWORD=157456
+      - SPRING_TELEGRAM_USERNAME=BombersHomeBot
+      - SPRING_TELEGRAM_TOKEN=6219525923:AAF0OQFG_T2Xm-p_p_bsMdynKs4yXnHrXnE
+      - SPRING_USERNAME=administrator
+      - SPRING_PASS=123456789
+      - SPRING_NAME=Хозяин
+      - MQTT_URL=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_USER=iot_user
+      - MQTT_PASS=pass_iot
+      - MQTT_ID=home_server
+    image: 'my-hs-app'
+    restart: always
+    ports:
+      - "8093:8093"
+    depends_on:
+      - postgres_hs
+      - mosquitto
+volumes:
+  postgres_hs_data:
