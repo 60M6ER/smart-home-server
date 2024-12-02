@@ -17,7 +17,7 @@
 .left {
   display: inline-block;
   /*position: absolute;*/
-  width: 20%;
+  width: 19%;
   border-right: #2c3e50 dotted 3px;
   /*top: 0;*/
   /*left: 0;*/

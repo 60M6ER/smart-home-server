@@ -12,7 +12,7 @@ import ru.bomber.trader.services.TraderService;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/exchange")
+@RequestMapping("/api/v1/exchange")
 @RequiredArgsConstructor
 public class ExchangeController {
 

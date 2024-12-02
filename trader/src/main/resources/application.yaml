@@ -1,10 +1,10 @@
 server:
-  port: ${SPRING_PORT:9031}
+  port: ${SPRING_PORT:8082}
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     #url: jdbc:postgresql://${SPRING_DB_URL:192.170.0.100:5432}/${SPRING_DB_NAME:db_trader}
-    url: jdbc:postgresql://${SPRING_DB_URL:localhost:5433}/${SPRING_DB_NAME:db_trader}
+    url: jdbc:postgresql://${SPRING_DB_URL:localhost:5432}/${SPRING_DB_NAME:db_trader}
     username: ${SPRING_DB_USER:home_server_user}
     password: ${SPRING_DB_PASSWORD:157456}
   jpa:

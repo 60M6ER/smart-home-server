@@ -10,7 +10,7 @@ import ru.bomber.trader.services.BotService;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/bots")
+@RequestMapping("/api/v1/bots")
 @RequiredArgsConstructor
 public class BotController {
 

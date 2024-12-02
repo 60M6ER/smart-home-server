@@ -1,6 +1,7 @@
 package ru.bomber.smarthomeserver.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @EnableScheduling
+@Slf4j
 public class UserService implements UserDetailsService {
 
     private static final Long TIME_TO_LIVE_CODE = 1000 * 60 * 5L;
@@ -34,6 +36,7 @@ public class UserService implements UserDetailsService {
             String code = String.valueOf((int) (100_000 + Math.random() * 899_999));
             UserCodeTelegram newUserCodeTelegram = new UserCodeTelegram(userCodeTelegram.getUserId(), code);
             registrationCodes.put(user.get(), newUserCodeTelegram);
+            log.info("Code: " + code);
             return newUserCodeTelegram;
         }
     }
