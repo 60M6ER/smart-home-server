@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="balance_operations-1" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="balance_operations"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="balance_operations">
+
+            <column name="id" type="uuid">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="instrument" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="source" type="int">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="amount" type="float8">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="bot_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="iteration" type="UUID"/>
+
+        </createTable>
+
+        <addPrimaryKey tableName="balance_operations" columnNames="id" constraintName="balance_operation.pk"/>
+        <addForeignKeyConstraint baseTableName="balance_operations" baseColumnNames="bot_id" constraintName="balance_operations_bot_fk"
+                                 referencedTableName="bots" referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

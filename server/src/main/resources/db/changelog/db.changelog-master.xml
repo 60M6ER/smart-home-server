@@ -13,6 +13,7 @@
     <include file="access_cards/access-card.xml" relativeToChangelogFile="true"/>
     <include file="access_cards/access-card-scanner.xml" relativeToChangelogFile="true"/>
     <include file="role/role.xml" relativeToChangelogFile="true"/>
+    <include file="telegram/chats.xml" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

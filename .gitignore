@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+home_server-tcp19217001001883/
+
+trader_service-tcp19217001001883/
+
+polo-sdk/
