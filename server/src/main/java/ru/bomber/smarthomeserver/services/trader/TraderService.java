@@ -5,13 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Mono;
-import ru.bomber.core.trader.models.BotDTO;
-import ru.bomber.core.trader.models.ExchangeVendor;
-import ru.bomber.core.trader.models.Instrument;
+import ru.bomber.smarthomeserver.dto.trader.models.BotDTO;
+import ru.bomber.smarthomeserver.dto.trader.models.ExchangeVendor;
+import ru.bomber.smarthomeserver.dto.trader.models.Instrument;
 
 import java.util.HashMap;
 import java.util.List;

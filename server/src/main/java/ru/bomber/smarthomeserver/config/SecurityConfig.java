@@ -2,6 +2,7 @@ package ru.bomber.smarthomeserver.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,16 +19,6 @@ import ru.bomber.smarthomeserver.services.UserService;
 public class SecurityConfig {
 
     private final UserService userService;
-
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return new WebSecurityCustomizer() {
-//            @Override
-//            public void customize(WebSecurity web) {
-//
-//            }
-//        }
-//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
