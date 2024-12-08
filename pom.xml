@@ -15,9 +15,7 @@
     </properties>
 
     <modules>
-        <module>server</module>
-        <module>trader</module>
-        <module>core</module>
+        <module>backend</module>
     </modules>
 
 </project>
