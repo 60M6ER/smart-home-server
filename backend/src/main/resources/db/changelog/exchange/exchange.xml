@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="createExchange" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="exchanges"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="exchanges">
+            <column name="id" type="bigserial">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="api_key" type="varchar(500)"/>
+            <column name="api_secret" type="varchar(500)"/>
+            <column name="vendor" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="active" type="boolean"/>
+
+        </createTable>
+
+        <addPrimaryKey tableName="exchanges" columnNames="id" constraintName="exchanges.pk"/>
+    </changeSet>
+
+</databaseChangeLog>

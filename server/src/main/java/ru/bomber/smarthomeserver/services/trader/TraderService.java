@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TraderService {
 
-    private final WebClient webClient;
+    private static final WebClient webClient = null;
 
     @Value("${trader.host}")
     private String host;

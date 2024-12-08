@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    darkMode: JSON.parse(localStorage.getItem("darkMode")) || [],
+    darkMode: JSON.parse(localStorage.getItem("darkMode")) || false,
   }),
 
   getters: {

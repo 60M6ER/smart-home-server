@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="createExchange" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="currencies"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="currencies">
+            <column name="id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vendor" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="numeric"/>
+            <column name="address" type="varchar(500)">
+                <constraints unique="true"/>
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey tableName="currencies" columnNames="id" constraintName="currencies.pk"/>
+    </changeSet>
+
+</databaseChangeLog>

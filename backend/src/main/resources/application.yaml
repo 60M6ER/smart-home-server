@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    #url: jdbc:postgresql://${SPRING_DB_URL:192.170.0.100:5432}/${SPRING_DB_NAME:db_home_server}
+    url: jdbc:postgresql://${SPRING_DB_URL:192.170.0.100:5432}/${SPRING_DB_NAME:db_trader}
+    username: ${SPRING_DB_USER:trader_user}
+    password: ${SPRING_DB_PASSWORD:trader_password}
+  jpa:
+    show-sql: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+server:
+  port: ${SPRING_PORT:8081}
+user:
+  username: ${SPRING_USERNAME:administrator}
+  password: ${SPRING_PASS:123456789}
+  name: ${SPRING_NAME:Хозяин}

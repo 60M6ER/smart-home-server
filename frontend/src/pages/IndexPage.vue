@@ -9,7 +9,17 @@
 </template>
 
 <script setup>
+import { useHeaderStateStore} from "stores/headerState";
+import { onMounted, ref } from "vue";
+
+const headerStateStore = useHeaderStateStore();
+
 defineOptions({
   name: 'IndexPage'
 });
+
+onMounted(() => {
+  headerStateStore.setTitle('Торговля криптовалютой')
+  headerStateStore.setTabs([]);
+})
 </script>
