@@ -6,9 +6,11 @@ import com.poloniex.api.client.spot.model.response.spot.Market;
 import com.poloniex.api.client.spot.rest.spot.SpotPoloRestClient;
 import lombok.extern.slf4j.Slf4j;
 import ru.larionov.backend.converter.CurrencyConverter;
+import ru.larionov.backend.converter.PairCurrencyConverter;
 import ru.larionov.backend.exception.ExchangeHandlerException;
 import ru.larionov.backend.model.Currency;
 import ru.larionov.backend.model.ExchangeVendor;
+import ru.larionov.backend.model.PairCurrency;
 import ru.larionov.backend.services.ExchangeHandler;
 import java.util.List;
 
@@ -58,6 +60,13 @@ public class PoloniexHandler implements ExchangeHandler{
                 .stream()
                 .flatMap(accountBalance -> accountBalance.getBalances().stream())
                 .map(CurrencyConverter::fromPoloniexCurrency)
+                .toList();
+    }
+
+    @Override
+    public List<PairCurrency> getPairs() {
+        return poloRestClient.getMarkets().stream()
+                .map(PairCurrencyConverter::fromPoloniexMarket)
                 .toList();
     }
 }

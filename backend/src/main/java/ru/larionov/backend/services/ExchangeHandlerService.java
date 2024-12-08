@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.larionov.backend.model.Currency;
 import ru.larionov.backend.model.Exchange;
+import ru.larionov.backend.model.PairCurrency;
 import ru.larionov.backend.repositories.ExchangeRepository;
 import ru.larionov.backend.services.poloniex.PoloniexHandler;
 
@@ -54,6 +55,12 @@ public class ExchangeHandlerService {
     public List<Currency> getPortfolio() {
         return exchangeHandlers.stream()
                 .flatMap(eh -> eh.getPortfolio().stream())
+                .toList();
+    }
+
+    public List<PairCurrency> getPairs() {
+        return exchangeHandlers.stream()
+                .flatMap(eh -> eh.getPairs().stream())
                 .toList();
     }
 }

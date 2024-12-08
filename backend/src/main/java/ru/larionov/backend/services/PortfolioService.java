@@ -36,10 +36,9 @@ public class PortfolioService {
     @PostConstruct
     private void startLogic() {
         getDataFromCBRF();
+        updateCurrencies();
     }
 
-    @Scheduled(fixedRate = 30000)
-    @Async
     @Transactional
     public void updateCurrencies() {
         log.info("Start updating balances");
