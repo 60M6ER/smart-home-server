@@ -10,6 +10,7 @@ import java.util.List;
 
 public class ChainPairs {
 
+    @Getter
     private PairCurrency basePair;
     @Getter
     private String baseCurrency;
@@ -58,8 +59,8 @@ public class ChainPairs {
                         && (pair.getBaseCurrency().equals(getSecondCurrency())
                         || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
                     String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
-                            pair.getQuoteCurrency() :
-                            pair.getBaseCurrency();
+                            pair.getBaseCurrency() :
+                            pair.getQuoteCurrency();
                     ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
                     newChain.scanChildren(pairs);
                     children.add(newChain);
@@ -69,8 +70,8 @@ public class ChainPairs {
                 if ((pair.getBaseCurrency().equals(startBaseCurrency) || pair.getBaseCurrency().equals(getSecondCurrency()))
                         && (pair.getQuoteCurrency().equals(startBaseCurrency) || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
                     String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
-                            pair.getQuoteCurrency() :
-                            pair.getBaseCurrency();
+                            pair.getBaseCurrency() :
+                            pair.getQuoteCurrency();
                     ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
                     children.add(newChain);
                 }
@@ -97,9 +98,11 @@ public class ChainPairs {
 
     public String getParentsString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(basePair.getQuoteCurrency())
+        sb.append(baseCurrency)
                 .append(" -> ")
-                .append(basePair.getBaseCurrency());
+                .append(basePair.getBaseCurrency().equals(baseCurrency) ?
+                        basePair.getQuoteCurrency() :
+                        basePair.getBaseCurrency());
         if (parentChain == null) {
             return sb.toString();
         } else {
@@ -110,9 +113,11 @@ public class ChainPairs {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Chain: ");
-        sb.append(basePair.getQuoteCurrency())
+        sb.append(baseCurrency)
                     .append(" -> ")
-                    .append(basePair.getBaseCurrency())
+                    .append(basePair.getBaseCurrency().equals(baseCurrency) ?
+                            basePair.getQuoteCurrency() :
+                            basePair.getBaseCurrency())
                     .append(". children: ")
                     .append(children.size());
 

@@ -9,6 +9,18 @@ public class PairCurrency {
     private String baseCurrency;
     private String quoteCurrency;
 
+    private ExchangeVendor vendor;
+
+    private int priceScale;
+    private int amountScale;
+    private int quantityScale;
+    private double minQuantity; // Minimum for Base currency
+    private double minAmount; // Minimum for Quote currency
+
+    public String getToken() {
+        return baseCurrency + "_" + quoteCurrency;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -16,14 +28,16 @@ public class PairCurrency {
 
         PairCurrency that = (PairCurrency) o;
 
-        if (!Objects.equals(baseCurrency, that.baseCurrency)) return false;
-        return Objects.equals(quoteCurrency, that.quoteCurrency);
+        if (!baseCurrency.equals(that.baseCurrency)) return false;
+        if (!quoteCurrency.equals(that.quoteCurrency)) return false;
+        return vendor == that.vendor;
     }
 
     @Override
     public int hashCode() {
-        int result = baseCurrency != null ? baseCurrency.hashCode() : 0;
-        result = 31 * result + (quoteCurrency != null ? quoteCurrency.hashCode() : 0);
+        int result = baseCurrency.hashCode();
+        result = 31 * result + quoteCurrency.hashCode();
+        result = 31 * result + vendor.hashCode();
         return result;
     }
 }

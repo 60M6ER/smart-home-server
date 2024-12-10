@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.larionov.backend.model.Currency;
-import ru.larionov.backend.model.Exchange;
-import ru.larionov.backend.model.PairCurrency;
+import ru.larionov.backend.model.*;
 import ru.larionov.backend.repositories.ExchangeRepository;
 import ru.larionov.backend.services.poloniex.PoloniexHandler;
 
@@ -63,4 +61,33 @@ public class ExchangeHandlerService {
                 .flatMap(eh -> eh.getPairs().stream())
                 .toList();
     }
+
+    public FeeInformation getFeeInformation (ExchangeVendor vendor) {
+        Optional<ExchangeHandler> first = exchangeHandlers.stream()
+                .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
+                .findFirst();
+        if (first.isPresent())
+            return first.get().getFee();
+        else
+            return new FeeInformation();
+    }
+
+    public List<PricePair> getPricesPairs (ExchangeVendor vendor) {
+        Optional<ExchangeHandler> first = exchangeHandlers.stream()
+                .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
+                .findFirst();
+        if (first.isPresent())
+            return first.get().getMarketPrices();
+        else
+            return new ArrayList<>();
+    }
+
+    public OrderBook getOrderBook(ExchangeVendor vendor, PairCurrency pairCurrency) {
+        Optional<ExchangeHandler> first = exchangeHandlers.stream()
+                .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
+                .findFirst();
+        return first.map(exchangeHandler -> exchangeHandler.getOrderBook(pairCurrency))
+                .orElse(null);
+    }
 }
+

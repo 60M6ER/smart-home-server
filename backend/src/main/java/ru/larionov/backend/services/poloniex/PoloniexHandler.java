@@ -1,16 +1,13 @@
 package ru.larionov.backend.services.poloniex;
 
-import com.poloniex.api.client.spot.model.response.spot.Account;
-import com.poloniex.api.client.spot.model.response.spot.AccountBalance;
-import com.poloniex.api.client.spot.model.response.spot.Market;
+import com.poloniex.api.client.spot.model.response.spot.*;
 import com.poloniex.api.client.spot.rest.spot.SpotPoloRestClient;
 import lombok.extern.slf4j.Slf4j;
-import ru.larionov.backend.converter.CurrencyConverter;
-import ru.larionov.backend.converter.PairCurrencyConverter;
+import ru.larionov.backend.converter.*;
 import ru.larionov.backend.exception.ExchangeHandlerException;
+import ru.larionov.backend.model.*;
 import ru.larionov.backend.model.Currency;
-import ru.larionov.backend.model.ExchangeVendor;
-import ru.larionov.backend.model.PairCurrency;
+import ru.larionov.backend.model.OrderBook;
 import ru.larionov.backend.services.ExchangeHandler;
 import java.util.List;
 
@@ -40,6 +37,7 @@ public class PoloniexHandler implements ExchangeHandler{
                 .filter(a -> a.getAccountType().equals("SPOT"))
                 .findFirst()
                 .ifPresent(account -> spotID = Long.valueOf(account.getAccountId()));
+        getFee();
     }
 
     @Override
@@ -65,8 +63,31 @@ public class PoloniexHandler implements ExchangeHandler{
 
     @Override
     public List<PairCurrency> getPairs() {
-        return poloRestClient.getMarkets().stream()
+        List<PairCurrency> pairCurrencies = poloRestClient.getMarkets().stream()
+                .filter(market -> market.getState().equals("NORMAL"))
                 .map(PairCurrencyConverter::fromPoloniexMarket)
                 .toList();
+        pairCurrencies.forEach(pairCurrency -> pairCurrency.setVendor(ExchangeVendor.POLONIEX));
+        return pairCurrencies;
+    }
+
+    @Override
+    public List<PricePair> getMarketPrices() {
+        return poloRestClient.getPrices().stream()
+                .map(PricePairConverter::fromPoloniexPricePair)
+                .toList();
+    }
+
+    @Override
+    public FeeInformation getFee() {
+        return FeeConverter.fromPoloniexFee(poloRestClient.getFeeInfo());
+    }
+
+    @Override
+    public OrderBook getOrderBook(PairCurrency pairCurrency) {
+        return OrderBookConverter.fromPoloniexOrderBook(poloRestClient.getOrderBook(pairCurrency.getToken(),
+                Double.toString(1 / Math.pow(10, pairCurrency.getPriceScale())),
+                5), pairCurrency.getToken());
+
     }
 }

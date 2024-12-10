@@ -44,6 +44,11 @@
               Биржи
             </q-item-section>
           </q-item>
+          <q-item clickable v-ripple @click="router.push('/user')">
+            <q-item-section>
+              Настройки пользователя
+            </q-item-section>
+          </q-item>
         </q-list>
     </q-drawer>
 

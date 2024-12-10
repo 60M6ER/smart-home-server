@@ -64,11 +64,6 @@
             <version>1.2.5</version>
         </dependency>
         <dependency>
-            <groupId>ru.bomber</groupId>
-            <artifactId>core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>ru.tinkoff.piapi</groupId>
             <artifactId>java-sdk-core</artifactId>
             <version>1.5</version>

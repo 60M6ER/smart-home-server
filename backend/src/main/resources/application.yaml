@@ -17,3 +17,7 @@ user:
   username: ${SPRING_USERNAME:administrator}
   password: ${SPRING_PASS:123456789}
   name: ${SPRING_NAME:Хозяин}
+telegram_bot:
+  username: ${SPRING_TELEGRAM_USERNAME:BombersHomeBot}
+  token: ${SPRING_TELEGRAM_TOKEN:6219525923:AAF0OQFG_T2Xm-p_p_bsMdynKs4yXnHrXnE}
+  enable: ${SPRING_TELEGRAM_ENABLE:true}

@@ -10,12 +10,16 @@ import ru.larionov.backend.model.Role;
 import ru.larionov.backend.model.User;
 import ru.larionov.backend.repositories.UserRepository;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class InitService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final TelegramService telegramService;
 
     @Value("${user.username}")
     private String username;
@@ -36,5 +40,6 @@ public class InitService {
             user = userRepository.save(user);
             log.info("Created user with id {}", user.getId());
         }
+        telegramService.sendNotification("Сервер запущен.");
     }
 }
