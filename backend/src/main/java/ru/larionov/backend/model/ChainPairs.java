@@ -1,27 +1,35 @@
 package ru.larionov.backend.model;
 
 
+import jdk.jfr.Frequency;
+import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.annotation.processing.Generated;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
+@Data
 public class ChainPairs {
 
-    @Getter
     private PairCurrency basePair;
-    @Getter
+
     private String baseCurrency;
-    @Getter
+    private boolean between;
+
+
+    private TypeOrder typeOrder;
+
     private ChainPairs parentChain;
-    @Getter
+
     private int level;
-    @Getter
+
     private int countLevels;
 
-    @Getter
+
     private List<ChainPairs> children;
 
     public ChainPairs(PairCurrency pairCurrency, String baseCurrency) {
@@ -51,32 +59,59 @@ public class ChainPairs {
 
     public void scanChildren (List<PairCurrency> pairs) {
         children = new ArrayList<>();
-        pairs.forEach(pair -> {
-            if (level < 1) {
-                if (!pair.getQuoteCurrency().equals(baseCurrency)
-                        && !pair.getBaseCurrency().equals(baseCurrency)
-                        && !basePair.equals(pair)
-                        && (pair.getBaseCurrency().equals(getSecondCurrency())
-                        || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
-                    String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
-                            pair.getBaseCurrency() :
-                            pair.getQuoteCurrency();
-                    ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
-                    newChain.scanChildren(pairs);
-                    children.add(newChain);
-                }
-            } else {
-                String startBaseCurrency = parentChain.getBaseCurrency();
-                if ((pair.getBaseCurrency().equals(startBaseCurrency) || pair.getBaseCurrency().equals(getSecondCurrency()))
-                        && (pair.getQuoteCurrency().equals(startBaseCurrency) || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
-                    String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
-                            pair.getBaseCurrency() :
-                            pair.getQuoteCurrency();
-                    ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
-                    children.add(newChain);
-                }
+        if (between) {
+            Optional<PairCurrency> first = pairs.stream()
+                    .filter(pair -> pair.getVendor() != basePair.getVendor()
+                            && basePair.getBaseCurrency().equals(pair.getBaseCurrency())
+                            && basePair.getQuoteCurrency().equals(pair.getQuoteCurrency())
+                    )
+                    .findFirst();
+            if (first.isPresent()) {
+                String bCurrency = first.get().getBaseCurrency().equals(getSecondCurrency()) ?
+                        first.get().getBaseCurrency() :
+                        first.get().getQuoteCurrency();
+                ChainPairs newChain = new ChainPairs(first.get(), bCurrency, this);
+                newChain.typeOrder = newChain.getBaseCurrency().equals(newChain.getBasePair().getQuoteCurrency()) ?
+                        TypeOrder.BUY :
+                        TypeOrder.SELL;
+                children.add(newChain);
             }
-        });
+        } else {
+            pairs.forEach(pair -> {
+                if (level < 1) {
+                    if (!pair.getQuoteCurrency().equals(baseCurrency)
+                            && !pair.getBaseCurrency().equals(baseCurrency)
+                            && !basePair.equals(pair)
+                            && basePair.getVendor() == pair.getVendor()
+                            && (pair.getBaseCurrency().equals(getSecondCurrency())
+                            || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
+                        String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
+                                pair.getBaseCurrency() :
+                                pair.getQuoteCurrency();
+                        ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
+                        newChain.typeOrder = newChain.getBaseCurrency().equals(newChain.getBasePair().getQuoteCurrency()) ?
+                                TypeOrder.BUY :
+                                TypeOrder.SELL;
+                        newChain.scanChildren(pairs);
+                        children.add(newChain);
+                    }
+                } else {
+                    String startBaseCurrency = parentChain.getBaseCurrency();
+                    if (basePair.getVendor() == pair.getVendor()
+                            && (pair.getBaseCurrency().equals(startBaseCurrency) || pair.getBaseCurrency().equals(getSecondCurrency()))
+                            && (pair.getQuoteCurrency().equals(startBaseCurrency) || pair.getQuoteCurrency().equals(getSecondCurrency()))) {
+                        String bCurrency = pair.getBaseCurrency().equals(getSecondCurrency()) ?
+                                pair.getBaseCurrency() :
+                                pair.getQuoteCurrency();
+                        ChainPairs newChain = new ChainPairs(pair, bCurrency, this);
+                        newChain.setTypeOrder(newChain.getBaseCurrency().equals(newChain.getBasePair().getQuoteCurrency()) ?
+                                TypeOrder.BUY :
+                                TypeOrder.SELL);
+                        children.add(newChain);
+                    }
+                }
+            });
+        }
     }
 
     public String getSecondCurrency() {

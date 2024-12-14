@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.larionov.backend.model.*;
 import ru.larionov.backend.repositories.ExchangeRepository;
+import ru.larionov.backend.services.binance.BinanceHandler;
+import ru.larionov.backend.services.hitBtc.HitBTCHandler;
 import ru.larionov.backend.services.poloniex.PoloniexHandler;
 
 import java.util.ArrayList;
@@ -24,10 +26,7 @@ public class ExchangeHandlerService {
 
     @PostConstruct
     public void startLogic() {
-        exchangeHandlers = new ArrayList<>();
-
-        List<Exchange> allByActive = exchangeRepository.findAllByActive(true);
-        allByActive.forEach(this::getExchangeHandler);
+        update();
     }
 
     private ExchangeHandler getExchangeHandler(Exchange exchange) {
@@ -39,6 +38,8 @@ public class ExchangeHandlerService {
 
         ExchangeHandler handler = switch (exchange.getVendor()) {
             case POLONIEX -> new PoloniexHandler(exchange.getAPI_KEY(), exchange.getSECRET());
+            case BINANCE -> new BinanceHandler(exchange.getAPI_KEY(), exchange.getSECRET());
+            case HIT_BTC -> new HitBTCHandler(exchange.getAPI_KEY(), exchange.getSECRET());
             default -> null;
         };
         exchangeHandlers.add(handler);
@@ -47,7 +48,9 @@ public class ExchangeHandlerService {
 
     @Scheduled(fixedDelay = 10000)
     public void update() {
-        exchangeHandlers.forEach(ExchangeHandler::update);
+        exchangeHandlers = new ArrayList<>();
+        List<Exchange> allByActive = exchangeRepository.findAllByActive(true);
+        allByActive.forEach(this::getExchangeHandler);
     }
 
     public List<Currency> getPortfolio() {

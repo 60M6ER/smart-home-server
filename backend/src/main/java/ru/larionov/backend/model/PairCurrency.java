@@ -16,6 +16,8 @@ public class PairCurrency {
     private int quantityScale;
     private double minQuantity; // Minimum for Base currency
     private double minAmount; // Minimum for Quote currency
+    private String exchangeToken;
+    private boolean marginTrading;
 
     public String getToken() {
         return baseCurrency + "_" + quoteCurrency;
@@ -39,5 +41,10 @@ public class PairCurrency {
         result = 31 * result + quoteCurrency.hashCode();
         result = 31 * result + vendor.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return quoteCurrency + " -> " + baseCurrency;
     }
 }
