@@ -59,28 +59,30 @@ public class PortfolioService {
                             currency.getName(),
                             currency.getVendor()
                     );
+            Currency savedCurrency;
             if (optional.isPresent()) {
-                Currency savedCurrency = optional.get();
+                savedCurrency = optional.get();
                 savedCurrency.setAmount(currency.getAmount());
                 savedCurrency.setHoldAmount(currency.getHoldAmount());
             } else {
                 currency.setId(UUID.randomUUID());
-                currencyRepository.save(currency);
+                savedCurrency = currencyRepository.save(currency);
             }
-            if (currency.getName().equals(MAIN_CURRENCY_NAME)){
-                currency.setUsdEqual(currency.getAmount() + currency.getHoldAmount());
+            if (savedCurrency.getName().equals(MAIN_CURRENCY_NAME)){
+                savedCurrency.setUsdEqual(savedCurrency.getAmount() + savedCurrency.getHoldAmount());
             } else {
                 markPrices.stream()
                         .filter(pairCurrency ->
-                                pairCurrency.getBaseCurrency().equals(currency.getName()))
+                                pairCurrency.getBaseCurrency().equals(savedCurrency.getName()))
                         .findFirst()
                         .ifPresent(pairCurrency ->
-                                currency.setUsdEqual(
-                                        (currency.getAmount() + currency.getHoldAmount()) * pairCurrency.getMarkPrice()
+                                savedCurrency.setUsdEqual(
+                                        (savedCurrency.getAmount() + savedCurrency.getHoldAmount()) * pairCurrency.getMarkPrice()
                                 ));
             }
-            usdBalance += currency.getUsdEqual();
-            currencyHashMap.put(new CurrencyKey(currency.getName(), currency.getVendor()), currency);
+            usdBalance += savedCurrency.getUsdEqual();
+            currencyRepository.save(savedCurrency);
+            currencyHashMap.put(new CurrencyKey(savedCurrency.getName(), savedCurrency.getVendor()), savedCurrency);
         });
         rubBalance = usdBalance * usd_rub;
         telegramService.sendNotification(

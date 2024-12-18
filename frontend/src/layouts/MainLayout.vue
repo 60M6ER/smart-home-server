@@ -39,6 +39,11 @@
               Главная
             </q-item-section>
           </q-item>
+          <q-item clickable v-ripple @click="router.push('/portfolio')">
+            <q-item-section>
+              Портфель
+            </q-item-section>
+          </q-item>
           <q-item clickable v-ripple @click="router.push('/exchanges')">
             <q-item-section>
               Биржи

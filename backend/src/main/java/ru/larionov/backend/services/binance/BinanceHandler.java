@@ -45,6 +45,7 @@ public class BinanceHandler implements ExchangeHandler {
     @Override
     public List<Currency> getBalances() {
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("recvWindow", 20000L);
         parameters.put("timestamp", new Date().getTime());
         try {
             List<Currency> currencies = Stream.of(mapper.readValue(spotClient.createWallet().getUserAsset(parameters),
@@ -81,6 +82,7 @@ public class BinanceHandler implements ExchangeHandler {
     public FeeInformation getFee() {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("timestamp", new Date().getTime());
+        parameters.put("recvWindow", 20000L);
         parameters.put("omitZeroBalances", true);
         try {
             return FeeConverter.fromBinanceAccountInfo(
@@ -147,6 +149,7 @@ public class BinanceHandler implements ExchangeHandler {
     @Override
     public CurrencyPermissions getCurrencyPermissions(String currencyToken) {
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("recvWindow", 20000L);
         parameters.put("timestamp", new Date().getTime());
         try {
             return Stream.of(mapper.readValue(spotClient.createWallet().coinInfo(parameters),

@@ -15,6 +15,12 @@ class PortfolioService {
       return response.status;
     })
   }
+
+  getExchangeBalances() {
+    return Client.executeGet(API_URL + '/exchangeBalances').then((response) => {
+      return response.data;
+    })
+  }
 }
 
 export default new PortfolioService();

@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.larionov.backend.dto.portfolio.ExchangeBalance;
 import ru.larionov.backend.dto.portfolio.ViewPortfolio;
 import ru.larionov.backend.services.PortfolioService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/portfolio")
@@ -24,5 +27,10 @@ public class PortfolioController {
     public String updateBalances() {
         portfolioService.updateBalances();
         return "OK";
+    }
+
+    @GetMapping("/exchangeBalances")
+    public List<ExchangeBalance> getExchangeBalances() {
+        return portfolioService.getExchangeBalances();
     }
 }
