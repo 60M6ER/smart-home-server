@@ -10,7 +10,7 @@ class Client {
         return response;
       })
       .catch((error) => {
-        if (error.status === 401 || error.status === 403) {
+        if (error.status === 401) {
           console.log('error status: ' + error.status)
           if (refresh){
             AuthService.refresh().then((code) => {

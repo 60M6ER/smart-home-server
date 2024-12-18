@@ -7,6 +7,7 @@ import com.poloniex.api.client.spot.model.response.spot.Market;
 import com.poloniex.api.client.spot.rest.spot.SpotPoloRestClient;
 import lombok.extern.slf4j.Slf4j;
 import ru.larionov.backend.converter.*;
+import ru.larionov.backend.dto.portfolio.CurrencyPermissions;
 import ru.larionov.backend.exception.ExchangeHandlerException;
 import ru.larionov.backend.model.*;
 import ru.larionov.backend.services.ExchangeHandler;
@@ -54,7 +55,7 @@ public class PhemexHandler implements ExchangeHandler, PhemexMessageListener {
     }
 
     @Override
-    public List<Currency> getPortfolio() {
+    public List<Currency> getBalances() {
 //        if (spotID == null)
 //            throw new ExchangeHandlerException("ID of SPOT account is not set.");
 //        return poloRestClient.getAccountBalancesById(spotID)
@@ -98,6 +99,16 @@ public class PhemexHandler implements ExchangeHandler, PhemexMessageListener {
 //                5), pairCurrency.getToken());
         return null;
 
+    }
+
+    @Override
+    public List<PairCurrency> getMarkPrices() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public CurrencyPermissions getCurrencyPermissions(String currencyToken) {
+        return null;
     }
 
     @Override

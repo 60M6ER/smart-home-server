@@ -60,10 +60,11 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
+            <img src="~assets/logo_mini2.png" style="width: 70px;">
           </q-avatar>
-          <div>Title</div>
+          <div>Автобот</div>
         </q-toolbar-title>
+        <PortfolioViewItem></PortfolioViewItem>
       </q-toolbar>
     </q-footer>
 
@@ -77,6 +78,8 @@ import { useHeaderStateStore} from "stores/headerState";
 import { onMounted, computed, watch, ref } from "vue";
 import AuthService from "src/services/AuthService";
 import { useRouter } from "vue-router";
+import PortfolioViewItem from "components/portfolio/PortfolioViewItem";
+
 
 defineOptions({
   name: 'MainLayout'
@@ -86,6 +89,7 @@ const $q = useQuasar();
 const router = useRouter();
 const settingsStore = useSettingsStore();
 const headerStateStore = useHeaderStateStore();
+
 
 const darkMode = computed({
   get () {

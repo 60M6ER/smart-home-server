@@ -9,6 +9,6 @@ public class BinanceExchangeInfo {
     public String timezone;
     public long serverTime;
     public ArrayList<BinanceRateLimit> rateLimits;
-    public ArrayList<Object> exchangeFilters;
+    public ArrayList<BinanceFilter> exchangeFilters;
     public ArrayList<BinanceSymbol> symbols;
 }

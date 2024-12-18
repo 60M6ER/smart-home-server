@@ -4,21 +4,20 @@ import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import ru.larionov.backend.dto.CBRF.CbrfResponse;
-import ru.larionov.backend.dto.CBRF.USD;
+import ru.larionov.backend.dto.portfolio.CurrencyKey;
+import ru.larionov.backend.dto.portfolio.ExchangeBalance;
+import ru.larionov.backend.dto.portfolio.ViewPortfolio;
 import ru.larionov.backend.model.Currency;
+import ru.larionov.backend.model.ExchangeVendor;
+import ru.larionov.backend.model.PairCurrency;
 import ru.larionov.backend.repositories.CurrencyRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,24 +25,33 @@ import java.util.UUID;
 @Slf4j
 public class PortfolioService {
 
+    private static final String MAIN_CURRENCY_NAME = "USDT";
+
     private final ExchangeHandlerService exchangeHandlerService;
     private final CurrencyRepository currencyRepository;
+    private final TelegramService telegramService;
     private final WebClient webClient;
 
+    private HashMap<CurrencyKey, Currency> currencyHashMap = new HashMap<>();
+    private List<PairCurrency> markPrices;
 
-    private double usd;
+    private double usdBalance;
+    private double rubBalance;
+    private double usd_rub;
 
     @PostConstruct
     private void startLogic() {
-        getDataFromCBRF();
         updateCurrencies();
     }
 
     @Transactional
     public void updateCurrencies() {
+        getDataFromCBRF();
         log.info("Start updating balances");
+        markPrices = exchangeHandlerService.getMarkPrices();
+        usdBalance = 0;
 
-        List<Currency> currencies = exchangeHandlerService.getPortfolio();
+        List<Currency> currencies = exchangeHandlerService.getBalances();
 
         currencies.forEach(currency -> {
             Optional<Currency> optional =
@@ -54,12 +62,32 @@ public class PortfolioService {
             if (optional.isPresent()) {
                 Currency savedCurrency = optional.get();
                 savedCurrency.setAmount(currency.getAmount());
+                savedCurrency.setHoldAmount(currency.getHoldAmount());
             } else {
                 currency.setId(UUID.randomUUID());
                 currencyRepository.save(currency);
             }
+            if (currency.getName().equals(MAIN_CURRENCY_NAME)){
+                currency.setUsdEqual(currency.getAmount() + currency.getHoldAmount());
+            } else {
+                markPrices.stream()
+                        .filter(pairCurrency ->
+                                pairCurrency.getBaseCurrency().equals(currency.getName()))
+                        .findFirst()
+                        .ifPresent(pairCurrency ->
+                                currency.setUsdEqual(
+                                        (currency.getAmount() + currency.getHoldAmount()) * pairCurrency.getMarkPrice()
+                                ));
+            }
+            usdBalance += currency.getUsdEqual();
+            currencyHashMap.put(new CurrencyKey(currency.getName(), currency.getVendor()), currency);
         });
-
+        rubBalance = usdBalance * usd_rub;
+        telegramService.sendNotification(
+                String.format(
+                        "Портфель составляет %.2f $ => %.2f ₽",
+                        usdBalance,
+                        rubBalance));
     }
 
     @Scheduled(cron = "0 0 * * * *")
@@ -76,8 +104,35 @@ public class PortfolioService {
         String findingChain = "\"USD\": ";
         int start = cbrfResponse.indexOf(findingChain);
         int end = cbrfResponse.indexOf(",", start);
-        this.usd = 1 / Double.parseDouble(cbrfResponse.substring(start + findingChain.length(), end));
-        log.info(String.format("USD-RUB: %.2f рубля", this.usd));
+        this.usd_rub = 1 / Double.parseDouble(cbrfResponse.substring(start + findingChain.length(), end));
+        log.info(String.format("USD-RUB: %.2f рубля", this.usd_rub));
+    }
+
+    public ViewPortfolio getViewPortfolio() {
+        ViewPortfolio viewPortfolio = new ViewPortfolio();
+        viewPortfolio.setUsdAmount(usdBalance);
+        viewPortfolio.setRubAmount(rubBalance);
+        return viewPortfolio;
+    }
+
+    public void updateBalances() {
+        updateCurrencies();
+    }
+
+    public List<ExchangeBalance> getExchangeBalances() {
+        Map<ExchangeVendor, Double> balances = new HashMap<>();
+        currencyHashMap.forEach(((currencyKey, currency) -> {
+            if (balances.containsKey(currencyKey.getVendor())) {
+                balances.put(currencyKey.getVendor(),
+                        balances.get(currencyKey.getVendor()) +
+                        currency.getUsdEqual());
+            }else {
+                balances.put(currencyKey.getVendor(), currency.getUsdEqual());
+            }
+        }));
+        List<ExchangeBalance> result = new ArrayList<>();
+        balances.forEach((vendor, aDouble) -> result.add(new ExchangeBalance(ExchangeVendor.getView(vendor), aDouble)));
+        return result;
     }
 
 }

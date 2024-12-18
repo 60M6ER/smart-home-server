@@ -14,5 +14,6 @@
     <include file="role/role.xml" relativeToChangelogFile="true"/>
     <include file="exchange/exchange.xml" relativeToChangelogFile="true"/>
     <include file="exchange/currencies.xml" relativeToChangelogFile="true"/>
+    <include file="portfolio/portfolio_balances.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

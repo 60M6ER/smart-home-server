@@ -22,7 +22,11 @@ public class Currency {
     @Column(name = "vendor")
     private ExchangeVendor vendor;
     @Column(name = "amount")
-    private double amount;
+    private Double amount;
+    @Column(name = "hold_amount")
+    private Double holdAmount;
+    @Column(name = "usd_equal")
+    private Double usdEqual;
     @Column(name = "address")
     private String address;
 }

@@ -8,19 +8,24 @@
           style="width: 200px;"
         >
       </div>
-      <div class="q-mt-xl">
-        <q-input outlined v-model="username" label="Логин" />
-        <q-input v-model="password" filled :type="isPwd ? 'password' : 'text'" label="Пароль">
-          <template v-slot:append>
-            <q-icon
-              :name="isPwd ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="isPwd = !isPwd"
-            />
-          </template>
-        </q-input>
-        <q-btn color="primary" glossy push class="full-width" label="Войти" size="md" @click="authenticate"/>
-      </div>
+      <q-form
+        @submit="authenticate"
+        class="q-gutter-md"
+      >
+        <div class="q-mt-xl">
+          <q-input outlined v-model="username" label="Логин"/>
+          <q-input v-model="password" filled :type="isPwd ? 'password' : 'text'" label="Пароль">
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+          <q-btn color="primary" glossy class="full-width" label="Войти" size="md" type="submit"/>
+        </div>
+      </q-form>
     </div>
     <q-dialog v-model="alert">
       <q-card>

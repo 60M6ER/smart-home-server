@@ -18,6 +18,7 @@ public class PairCurrency {
     private double minAmount; // Minimum for Quote currency
     private String exchangeToken;
     private boolean marginTrading;
+    private double markPrice;
 
     public String getToken() {
         return baseCurrency + "_" + quoteCurrency;

@@ -9,39 +9,32 @@
 		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
 		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
 
-    <changeSet id="createExchange" author="larionov">
+    <changeSet id="createPortfolioBalances" author="larionov">
         <preConditions>
             <not>
-                <tableExists tableName="currencies"/>
+                <tableExists tableName="portfolio_balances"/>
             </not>
         </preConditions>
 
-        <createTable tableName="currencies">
+        <createTable tableName="portfolio_balances">
             <column name="id" type="uuid">
+                <constraints unique="true" nullable="false"/>
+            </column>
+
+            <column name="usd" type="numeric">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rub" type="numeric">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="name" type="varchar(20)">
+            <column name="date" type="timestamp">
                 <constraints nullable="false"/>
-            </column>
-            <column name="vendor" type="varchar(100)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="amount" type="numeric"/>
-            <column name="address" type="varchar(500)">
-                <constraints unique="true"/>
             </column>
 
         </createTable>
 
-        <addPrimaryKey tableName="currencies" columnNames="id" constraintName="currencies.pk"/>
-    </changeSet>
-
-    <changeSet id="addHoldAndUsdAmount" author="larionov">
-        <addColumn tableName="currencies">
-            <column name="hold_amount" type="numeric"/>
-            <column name="usd_equal" type="numeric"/>
-        </addColumn>
+        <addPrimaryKey tableName="portfolio_balances" columnNames="id" constraintName="portfolio_balances.pk"/>
     </changeSet>
 
 </databaseChangeLog>

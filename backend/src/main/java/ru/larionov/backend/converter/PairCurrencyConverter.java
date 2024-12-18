@@ -2,7 +2,6 @@ package ru.larionov.backend.converter;
 
 import com.poloniex.api.client.spot.model.response.spot.Market;
 import ru.larionov.backend.dto.exchange.binance.BinanceSymbol;
-import ru.larionov.backend.dto.hitbtc.HitBTCSymbol;
 import ru.larionov.backend.model.PairCurrency;
 
 public class PairCurrencyConverter {
@@ -34,15 +33,6 @@ public class PairCurrencyConverter {
                 pairCurrency.setMinQuantity(filter.getMinQty());
             }
         });
-        return pairCurrency;
-    }
-
-    public static PairCurrency fromHiBTCSymbol(HitBTCSymbol hitBTCSymbol) {
-        PairCurrency pairCurrency = new PairCurrency();
-        pairCurrency.setBaseCurrency(hitBTCSymbol.getBase_currency());
-        pairCurrency.setQuoteCurrency(hitBTCSymbol.getQuote_currency());
-        pairCurrency.setExchangeToken(hitBTCSymbol.getSymbol());
-        pairCurrency.setMarginTrading(hitBTCSymbol.isMargin_trading());
         return pairCurrency;
     }
 }

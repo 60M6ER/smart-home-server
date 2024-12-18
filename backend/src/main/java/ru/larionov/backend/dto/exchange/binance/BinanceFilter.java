@@ -1,6 +1,9 @@
 package ru.larionov.backend.dto.exchange.binance;
 
 import lombok.Data;
+import org.hibernate.dialect.function.SumReturnTypeResolver;
+
+import javax.xml.transform.sax.SAXResult;
 
 @Data
 public class BinanceFilter {
@@ -27,4 +30,5 @@ public class BinanceFilter {
     public boolean applyMaxToMarket;
     public int maxNumOrders;
     public int maxNumAlgoOrders;
+    public String maxPosition;
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.larionov.backend.model.*;
 import ru.larionov.backend.repositories.ExchangeRepository;
 import ru.larionov.backend.services.binance.BinanceHandler;
-import ru.larionov.backend.services.hitBtc.HitBTCHandler;
 import ru.larionov.backend.services.poloniex.PoloniexHandler;
 
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ public class ExchangeHandlerService {
         ExchangeHandler handler = switch (exchange.getVendor()) {
             case POLONIEX -> new PoloniexHandler(exchange.getAPI_KEY(), exchange.getSECRET());
             case BINANCE -> new BinanceHandler(exchange.getAPI_KEY(), exchange.getSECRET());
-            case HIT_BTC -> new HitBTCHandler(exchange.getAPI_KEY(), exchange.getSECRET());
             default -> null;
         };
         exchangeHandlers.add(handler);
@@ -53,9 +51,15 @@ public class ExchangeHandlerService {
         allByActive.forEach(this::getExchangeHandler);
     }
 
-    public List<Currency> getPortfolio() {
+    public List<Currency> getBalances() {
         return exchangeHandlers.stream()
-                .flatMap(eh -> eh.getPortfolio().stream())
+                .flatMap(eh -> eh.getBalances().stream())
+                .toList();
+    }
+
+    public List<PairCurrency> getMarkPrices() {
+        return exchangeHandlers.stream()
+                .flatMap(eh -> eh.getMarkPrices().stream())
                 .toList();
     }
 

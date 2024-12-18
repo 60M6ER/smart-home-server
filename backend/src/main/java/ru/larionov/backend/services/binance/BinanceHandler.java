@@ -4,17 +4,15 @@ import com.binance.connector.client.impl.SpotClientImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import ru.larionov.backend.converter.FeeConverter;
-import ru.larionov.backend.converter.OrderBookConverter;
-import ru.larionov.backend.converter.PairCurrencyConverter;
-import ru.larionov.backend.dto.exchange.binance.BinanceAccountInfo;
-import ru.larionov.backend.dto.exchange.binance.BinanceExchangeInfo;
-import ru.larionov.backend.dto.exchange.binance.BinanceOrderBook;
+import ru.larionov.backend.converter.*;
+import ru.larionov.backend.dto.exchange.binance.*;
+import ru.larionov.backend.dto.portfolio.CurrencyPermissions;
 import ru.larionov.backend.model.*;
 import ru.larionov.backend.model.Currency;
 import ru.larionov.backend.services.ExchangeHandler;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 @Slf4j
 public class BinanceHandler implements ExchangeHandler {
@@ -45,8 +43,19 @@ public class BinanceHandler implements ExchangeHandler {
     }
 
     @Override
-    public List<Currency> getPortfolio() {
-        return new ArrayList<>();
+    public List<Currency> getBalances() {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("timestamp", new Date().getTime());
+        try {
+            List<Currency> currencies = Stream.of(mapper.readValue(spotClient.createWallet().getUserAsset(parameters),
+                            BinanceUserAsset[].class))
+                    .map(CurrencyConverter::fromBinanceAsset)
+                    .toList();
+            currencies.forEach(currency -> currency.setVendor(ExchangeVendor.BINANCE));
+            return currencies;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -100,6 +109,52 @@ public class BinanceHandler implements ExchangeHandler {
                             spotClient.createMarket().depth(parameters),
                             BinanceOrderBook.class),
                     pairCurrency.getExchangeToken());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<PairCurrency> getMarkPrices() {
+        Map<String, Object> parameters = new HashMap<>();
+        ArrayList<String> permissions = new ArrayList<>();
+        permissions.add("SPOT");
+        parameters.put("permissions", permissions);
+        try {
+            List<PairCurrency> pairCurrencies = mapper.readValue(spotClient.createMarket().exchangeInfo(parameters),
+                            BinanceExchangeInfo.class).symbols.stream()
+                    .map(PairCurrencyConverter::fromBinanceSymbol)
+                    .toList();
+            pairCurrencies.forEach(pair -> pair.setVendor(ExchangeVendor.BINANCE));
+            parameters = new HashMap<>();
+            BinancePriceTicker[] binancePriceTicker = mapper.readValue(spotClient.createMarket().tickerSymbol(parameters),
+                    BinancePriceTicker[].class);
+            Stream.of(binancePriceTicker)
+                    .forEach(price -> {
+                        for (PairCurrency pair: pairCurrencies) {
+                            if (pair.getExchangeToken().equals(price.getSymbol())){
+                                pair.setMarkPrice(price.getPrice());
+                                break;
+                            }
+                        }
+                    });
+            return pairCurrencies;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public CurrencyPermissions getCurrencyPermissions(String currencyToken) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("timestamp", new Date().getTime());
+        try {
+            return Stream.of(mapper.readValue(spotClient.createWallet().coinInfo(parameters),
+                            BinanceCurrencyInfo[].class))
+                    .filter(c -> c.getCoin().equals(currencyToken))
+                    .map(CurrencyPermissionsConverter::fromBinance)
+                    .findFirst()
+                    .orElseThrow();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
