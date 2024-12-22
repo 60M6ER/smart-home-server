@@ -4,27 +4,34 @@ import lombok.Data;
 
 @Data
 public class BinanceNetworkListItem {
-    private String addressRegex;
-    private String coin;
-    private String depositDesc;
-    private boolean depositEnable;
-    private boolean isDefault;
-    private String memoRegex;
-    private int minConfirm;
-    private String name;
     private String network;
-    private String specialTips;
-    private int unLockConfirm;
-    private String withdrawDesc;
-    private boolean withdrawEnable;
-    private double withdrawFee;
+    private String coin;
     private double withdrawIntegerMultiple;
-    private double withdrawMax;
+    private boolean isDefault;
+    private boolean depositEnable;
+    private boolean withdrawEnable;
+    private String depositDesc;
+    private String withdrawDesc;
+    private String specialTips;
+    private String specialWithdrawTips;
+    private String name;
+    private boolean resetAddressStatus;
+    private String addressRegex;
+    private String memoRegex;
+    private double withdrawFee;
     private double withdrawMin;
-    private String withdrawInternalMin;
+    private double withdrawMax;
+    private double withdrawInternalMin;
+    private double depositDust;
+    private int minConfirm;
+    private int unLockConfirm;
     private boolean sameAddress;
     private int estimatedArrivalTime;
     private boolean busy;
     private String contractAddressUrl;
     private String contractAddress;
+
+    public void setIsDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

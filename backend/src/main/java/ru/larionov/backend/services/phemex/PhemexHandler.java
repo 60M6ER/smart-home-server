@@ -112,6 +112,11 @@ public class PhemexHandler implements ExchangeHandler, PhemexMessageListener {
     }
 
     @Override
+    public DepositAddress getDepositAddress(String currencyToken, String networkToken) {
+        return null;
+    }
+
+    @Override
     public void onMessage(String s) {
 
     }

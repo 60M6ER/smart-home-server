@@ -1,6 +1,9 @@
 package ru.larionov.backend.services.poloniex;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.poloniex.api.client.spot.model.request.spot.NewCurrencyAddressRequest;
+import com.poloniex.api.client.spot.model.request.spot.NewCurrencyAddressRequest.NewCurrencyAddressRequestBuilder;
+import com.poloniex.api.client.spot.model.request.spot.WithdrawCurrencyRequest;
 import com.poloniex.api.client.spot.model.response.spot.*;
 import com.poloniex.api.client.spot.rest.spot.SpotPoloRestClient;
 import io.netty.channel.ChannelOption;
@@ -152,5 +155,32 @@ public class PoloniexHandler implements ExchangeHandler{
                                 .bodyToMono(PoloniexCurrencyInformation.class)
                                 .block())
         );
+    }
+
+    @Override
+    public DepositAddress getDepositAddress(String currencyToken, String networkToken) {
+        Map<String, String> depositAddressesByCurrency = poloRestClient.getDepositAddressesByCurrency(currencyToken);
+        DepositAddress depositAddress = new DepositAddress();
+        depositAddress.setVendor(ExchangeVendor.POLONIEX);
+        depositAddress.setCurrencyToken(currencyToken);
+        if (depositAddressesByCurrency.size() == 0) {
+            NewCurrencyAddressResponse newCurrencyAddressResponse =
+                    poloRestClient.addNewCurrencyAddress(
+                            NewCurrencyAddressRequest.builder()
+                                    .currency(currencyToken)
+                                    .build());
+            depositAddress.setAddress(newCurrencyAddressResponse.getAddress());
+        } else {
+            depositAddress.setAddress(depositAddressesByCurrency.get(currencyToken));
+        }
+        return depositAddress;
+    }
+    
+    public void createWithdrawal(String currencyToken, String networkToken, String tag, String amount) {
+        WithdrawCurrencyRequest withdrawCurrencyRequest = WithdrawCurrencyRequest.builder()
+                .currency(currencyToken)
+                .amount(amount)
+                .build();
+        WithdrawCurrencyResponse withdrawCurrencyResponse = poloRestClient.withdrawCurrency(withdrawCurrencyRequest);
     }
 }

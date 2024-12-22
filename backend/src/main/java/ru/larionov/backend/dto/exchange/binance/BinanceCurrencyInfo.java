@@ -20,4 +20,8 @@ public class BinanceCurrencyInfo {
     private boolean trading;
     private boolean withdrawAllEnable;
     private String withdrawing;
+
+    public void setIsLegalMoney(boolean isLegalMoney) {
+        this.isLegalMoney = isLegalMoney;
+    }
 }

@@ -21,6 +21,12 @@ class PortfolioService {
       return response.data;
     })
   }
+
+  getFeeEqualize() {
+    return Client.executeGet(API_URL + '/feeEqualizeBalances').then((response) => {
+      return response.data;
+    })
+  }
 }
 
 export default new PortfolioService();

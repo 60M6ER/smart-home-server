@@ -162,4 +162,23 @@ public class BinanceHandler implements ExchangeHandler {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public DepositAddress getDepositAddress(String currencyToken, String networkToken) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("recvWindow", 20000L);
+        parameters.put("timestamp", new Date().getTime());
+        parameters.put("network", networkToken);
+        try {
+            BinanceDepositAddress binanceDepositAddress = mapper.readValue(spotClient.createWallet().depositAddress(parameters),
+                    BinanceDepositAddress.class);
+            DepositAddress depositAddress = new DepositAddress();
+            depositAddress.setCurrencyToken(currencyToken);
+            depositAddress.setVendor(ExchangeVendor.BINANCE);
+            depositAddress.setAddress(binanceDepositAddress.getAddress());
+            return depositAddress;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

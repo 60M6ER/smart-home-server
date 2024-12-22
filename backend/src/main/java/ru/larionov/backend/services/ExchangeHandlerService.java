@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.larionov.backend.dto.portfolio.CurrencyPermissions;
 import ru.larionov.backend.model.*;
 import ru.larionov.backend.repositories.ExchangeRepository;
 import ru.larionov.backend.services.binance.BinanceHandler;
@@ -94,6 +95,22 @@ public class ExchangeHandlerService {
                 .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
                 .findFirst();
         return first.map(exchangeHandler -> exchangeHandler.getOrderBook(pairCurrency))
+                .orElse(null);
+    }
+
+    public CurrencyPermissions getCurrencyPermissions(String currencyToken, ExchangeVendor vendor) {
+        return exchangeHandlers.stream()
+                .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
+                .findFirst()
+                .map(eh -> eh.getCurrencyPermissions(currencyToken))
+                .orElseThrow();
+    }
+
+    public DepositAddress getDepositAddress(String currencyToken, String networkToken, ExchangeVendor vendor) {
+        Optional<ExchangeHandler> first = exchangeHandlers.stream()
+                .filter(exchangeHandler -> exchangeHandler.getVendor().equals(vendor))
+                .findFirst();
+        return first.map(exchangeHandler -> exchangeHandler.getDepositAddress(currencyToken, networkToken))
                 .orElse(null);
     }
 }

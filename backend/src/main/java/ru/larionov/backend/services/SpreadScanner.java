@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.larionov.backend.converter.SpreadConverter;
+import ru.larionov.backend.dto.spreads.SpreadDTO;
 import ru.larionov.backend.model.*;
 
 import java.util.*;
@@ -20,9 +22,14 @@ public class SpreadScanner {
 
     private static final String BASE_CURRENCY = "USDT";
 
+
+    private static final int SPREADS_BUFFER = 100;
+
     private final ExchangeHandlerService exchangeHandlerService;
     private final TelegramService telegramService;
     private Map<ExchangeVendor, List<ChainPairs>> chains;
+
+    private LinkedList<Spread> spreads;
 
     private List<ChainPairs> betweenChains;
 
@@ -30,6 +37,7 @@ public class SpreadScanner {
     private Map<ExchangeVendor, List<PricePair>> prices;
 
     private final Object chainsMonitor = new Object();
+    private final Object spreadsMonitor = new Object();
 
     Map<ExchangeVendor, Integer> curIndexes;
 
@@ -37,12 +45,46 @@ public class SpreadScanner {
 
     @PostConstruct
     public void startLogic() {
+        spreads = new LinkedList<>();
         betweenChains = new ArrayList<>();
         curIndexes = new HashMap<>();
         chains = new HashMap<>();
         fees = new HashMap<>();
         prices = new HashMap<>();
         currIndex = -1;
+    }
+
+    private void addSpread(Spread spread) {
+        synchronized (spreadsMonitor) {
+            Optional<Spread> activeSpread = spreads.stream()
+                    .filter(s -> s.getState() == SpreadState.WORKING &&
+                            s.equals(spread))
+                    .findFirst();
+
+            if (activeSpread.isPresent()) {
+                activeSpread.get().updateWithAnother(spread);
+            } else {
+                if (spread.getUSDT_amount_end() > spread.getUSDT_amount_start()) {
+                    spread.setId(UUID.randomUUID());
+                    spread.setState(SpreadState.WORKING);
+                    spreads.addLast(spread);
+                }
+            }
+            if (spreads.size() > SPREADS_BUFFER) {
+                spreads.removeFirst();
+            }
+        }
+    }
+
+    public List<SpreadDTO> getSpreadsStack() {
+        List<SpreadDTO> spreadDTOS = new ArrayList<>();
+        synchronized (spreadsMonitor) {
+            Iterator<Spread> spreadIterator = spreads.descendingIterator();
+            while (spreadIterator.hasNext()) {
+                spreadDTOS.add(SpreadConverter.toDto(spreadIterator.next()));
+            }
+        }
+        return spreadDTOS;
     }
 
     public void updateChainsOld() {
@@ -136,12 +178,14 @@ public class SpreadScanner {
             spread.addChain(chain,
                     exchangeHandlerService.getOrderBook(chain.getBasePair().getVendor(), chain.getBasePair()));
 
-            if (spread.getUSDT_amount_end() > spread.getUSDT_amount_start()) {
-                log.info("Найдена доходная цепочка:\n" + spread);
-                telegramService.sendNotification(
-                        "Найдена доходная цепочка:\n"
-                                + spread);
-            }
+            addSpread(spread);
+
+//            if (spread.getUSDT_amount_end() > spread.getUSDT_amount_start()) {
+//                log.info("Найдена доходная цепочка:\n" + spread);
+//                telegramService.sendNotification(
+//                        "Найдена доходная цепочка:\n"
+//                                + spread);
+//            }
         }
     }
 

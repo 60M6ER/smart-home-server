@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.larionov.backend.dto.portfolio.ExchangeBalance;
 import ru.larionov.backend.dto.portfolio.ViewPortfolio;
+import ru.larionov.backend.exception.NetworksAreNotEquals;
 import ru.larionov.backend.services.PortfolioService;
 
 import java.util.List;
@@ -32,5 +33,10 @@ public class PortfolioController {
     @GetMapping("/exchangeBalances")
     public List<ExchangeBalance> getExchangeBalances() {
         return portfolioService.getExchangeBalances();
+    }
+
+    @GetMapping("/feeEqualizeBalances")
+    public Double getFeeEqualizeBalances() throws NetworksAreNotEquals {
+        return portfolioService.getFeeEqualizeBalances();
     }
 }

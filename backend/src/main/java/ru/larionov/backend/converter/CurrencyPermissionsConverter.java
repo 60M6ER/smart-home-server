@@ -4,6 +4,8 @@ import ru.larionov.backend.dto.exchange.binance.BinanceCurrencyInfo;
 import ru.larionov.backend.dto.exchange.poloniex.PoloniexCurrencyInformation;
 import ru.larionov.backend.dto.portfolio.CurrencyPermissions;
 
+import java.util.Date;
+
 public class CurrencyPermissionsConverter {
 
     public static CurrencyPermissions fromPoloniex(PoloniexCurrencyInformation currencyInformation) {
@@ -16,6 +18,7 @@ public class CurrencyPermissionsConverter {
                         .map(NetworkListConverter::fromPoloniex)
                         .toList()
         );
+        currencyPermissions.setTimestamp(new Date().getTime());
         return currencyPermissions;
     }
 
@@ -28,6 +31,7 @@ public class CurrencyPermissionsConverter {
                         .map(NetworkListConverter::fromBinance)
                         .toList()
         );
+        currencyPermissions.setTimestamp(new Date().getTime());
         return currencyPermissions;
     }
 }

@@ -9,12 +9,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import ru.larionov.backend.dto.portfolio.CurrencyKey;
-import ru.larionov.backend.dto.portfolio.ExchangeBalance;
-import ru.larionov.backend.dto.portfolio.ViewPortfolio;
+import ru.larionov.backend.dto.portfolio.*;
+import ru.larionov.backend.exception.NetworksAreNotEquals;
 import ru.larionov.backend.model.Currency;
 import ru.larionov.backend.model.ExchangeVendor;
 import ru.larionov.backend.model.PairCurrency;
+import ru.larionov.backend.model.TypeDeposit;
 import ru.larionov.backend.repositories.CurrencyRepository;
 
 import java.util.*;
@@ -27,7 +27,10 @@ public class PortfolioService {
 
     private static final String MAIN_CURRENCY_NAME = "USDT";
 
+    private static final Object currencyMapMonitor = new Object();
+
     private final ExchangeHandlerService exchangeHandlerService;
+    private final WalletService walletService;
     private final CurrencyRepository currencyRepository;
     private final TelegramService telegramService;
     private final WebClient webClient;
@@ -44,12 +47,25 @@ public class PortfolioService {
         updateCurrencies();
     }
 
+    private HashMap<CurrencyKey, Currency> getCurrencyHashMap()  {
+        synchronized (currencyMapMonitor) {
+            return currencyHashMap;
+        }
+    }
+
+    private void setCurrencyHashMap(HashMap<CurrencyKey, Currency> currencyHashMap)  {
+        synchronized (currencyMapMonitor) {
+            this.currencyHashMap = currencyHashMap;
+        }
+    }
+
     @Transactional
     public void updateCurrencies() {
         getDataFromCBRF();
         log.info("Start updating balances");
         markPrices = exchangeHandlerService.getMarkPrices();
         usdBalance = 0;
+        HashMap<CurrencyKey, Currency> newCurrencyMap = new HashMap<>();
 
         List<Currency> currencies = exchangeHandlerService.getBalances();
 
@@ -82,14 +98,10 @@ public class PortfolioService {
             }
             usdBalance += savedCurrency.getUsdEqual();
             currencyRepository.save(savedCurrency);
-            currencyHashMap.put(new CurrencyKey(savedCurrency.getName(), savedCurrency.getVendor()), savedCurrency);
+            newCurrencyMap.put(new CurrencyKey(savedCurrency.getName(), savedCurrency.getVendor()), savedCurrency);
         });
+        setCurrencyHashMap(newCurrencyMap);
         rubBalance = usdBalance * usd_rub;
-        telegramService.sendNotification(
-                String.format(
-                        "Портфель составляет %.2f $ => %.2f ₽",
-                        usdBalance,
-                        rubBalance));
     }
 
     @Scheduled(cron = "0 0 * * * *")
@@ -123,18 +135,35 @@ public class PortfolioService {
 
     public List<ExchangeBalance> getExchangeBalances() {
         Map<ExchangeVendor, Double> balances = new HashMap<>();
-        currencyHashMap.forEach(((currencyKey, currency) -> {
-            if (balances.containsKey(currencyKey.getVendor())) {
-                balances.put(currencyKey.getVendor(),
-                        balances.get(currencyKey.getVendor()) +
-                        currency.getUsdEqual());
-            }else {
-                balances.put(currencyKey.getVendor(), currency.getUsdEqual());
-            }
-        }));
+        synchronized (currencyMapMonitor) {
+            currencyHashMap.forEach(((currencyKey, currency) -> {
+                if (balances.containsKey(currencyKey.getVendor())) {
+                    balances.put(currencyKey.getVendor(),
+                            balances.get(currencyKey.getVendor()) +
+                                    currency.getUsdEqual());
+                }else {
+                    balances.put(currencyKey.getVendor(), currency.getUsdEqual());
+                }
+            }));
+        }
         List<ExchangeBalance> result = new ArrayList<>();
         balances.forEach((vendor, aDouble) -> result.add(new ExchangeBalance(ExchangeVendor.getView(vendor), aDouble)));
         return result;
+    }
+
+    public double getFeeEqualizeBalances () throws NetworksAreNotEquals {
+        String currencyToken = "USDT";
+        CurrencyPermissions srcCurrencyPermissions = walletService.getCurrencyPermissions(currencyToken, ExchangeVendor.POLONIEX);
+        CurrencyPermissions targetCurrencyPermissions = walletService.getCurrencyPermissions(currencyToken, ExchangeVendor.BINANCE);
+
+        return walletService.getFeeWithdrawal(srcCurrencyPermissions, targetCurrencyPermissions);
+    }
+
+    public String equalizeBalances() {
+        String currencyToken = "USDT";
+
+
+        return "OK";
     }
 
 }

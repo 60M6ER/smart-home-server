@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+		http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+
+    <changeSet id="createWithdrawals" author="larionov">
+        <preConditions>
+            <not>
+                <tableExists tableName="withdrawals"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="withdrawals">
+            <column name="id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="exchange_id" type="varchar(500)"/>
+            <column name="amount" type="numeric"/>
+            <column name="fee" type="numeric"/>
+            <column name="src_vendor" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_vendor" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="varchar(1000)"/>
+            <column name="state" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addPrimaryKey tableName="withdrawals" columnNames="id" constraintName="withdrawals.pk"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -4,10 +4,10 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: 'portfolio', component: () => import('pages/BalancePage.vue')},
       { path: 'exchanges', component: () => import('pages/ExchangesPage.vue'),
         children: [{ path: ':id', component: () => import('components/exchange/ExchangeItem.vue')}]},
-      { path: 'user', component: () => import('pages/UserPage.vue') }
+      { path: 'user', component: () => import('pages/UserPage.vue') },
+      { path: 'portfolio', component: () => import('pages/BalancePage.vue') }
     ]
   },
 

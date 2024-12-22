@@ -2,13 +2,17 @@ package ru.larionov.backend.model;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Data
 @Slf4j
 public class Spread {
+    private UUID id;
     private PairCurrency firstPair;
     private TypeOrder firstTypeOrder;
     private double firstPrice;
@@ -30,6 +34,10 @@ public class Spread {
     private SpreadState state;
     private double USDT_amount_start;
     private double USDT_amount_end;
+    private double profit;
+    private double profitPercent;
+    private double maxProfit;
+    private double maxProfitPercent;
 
     public Spread() {
         currentIndex = 0;
@@ -93,6 +101,37 @@ public class Spread {
             USDT_amount_end = calculateOperationAmount(USDT_amount_start, firstPrice, firstTypeOrder);
             USDT_amount_end = calculateOperationAmount(USDT_amount_end, secondPrice, secondTypeOrder);
         }
+        if (USDT_amount_start > 0 && USDT_amount_end > 0) {
+            profit = USDT_amount_end - USDT_amount_start;
+            profitPercent = (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start;
+            maxProfit = profit;
+            maxProfitPercent = profitPercent;
+        }
+    }
+
+    public void updateWithAnother(Spread spread) {
+        firstPrice = spread.getFirstPrice();
+        firstAmount = spread.getFirstAmount();
+        secondPrice = spread.getSecondPrice();
+        secondAmount = spread.getSecondAmount();
+        if (typeSpread == TypeSpread.TRIANGLE) {
+            thirdPrice = spread.getThirdPrice();
+            thirdAmount = spread.getThirdAmount();
+        }
+        USDT_amount_start = spread.getUSDT_amount_start();
+        USDT_amount_end = spread.getUSDT_amount_end();
+        if (USDT_amount_start > 0 && USDT_amount_end > 0) {
+            profit = USDT_amount_end - USDT_amount_start;
+            profitPercent = (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start;
+            if (profitPercent > maxProfitPercent) {
+                maxProfit = profit;
+                maxProfitPercent = profitPercent;
+            }
+        }
+        if (profit <= 0) {
+            dateFinish = spread.getDateCreate();
+            state = SpreadState.FINISHED;
+        }
     }
 
     private double getSecondAmountUSDT() {
@@ -115,8 +154,7 @@ public class Spread {
         return a - (a * feeInformation.getTaker());
     }
 
-    @Override
-    public String toString() {
+    public String getDescription() {
         StringBuilder sb = new StringBuilder();
         if (typeSpread == TypeSpread.TRIANGLE) {
 
@@ -130,11 +168,6 @@ public class Spread {
             }
             if (thirdPair != null) {
                 sb.append(" | ").append(thirdPair);
-                sb.append("\n");
-                sb.append(String.format("Будет использованно: %.3f USDT. Доход составит: %.3f USDT ( %.2f процентов).",
-                        USDT_amount_start,
-                        USDT_amount_end - USDT_amount_start,
-                        (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start));
             }
         } else {
             sb.append(firstPair.getVendor())
@@ -147,14 +180,36 @@ public class Spread {
                 sb.append(secondPair.getVendor())
                         .append(": ")
                         .append(secondPair);
-                sb.append("\n");
-                sb.append(String.format("Будет использованно: %.3f USDT. Доход составит: %.3f USDT ( %.2f процентов).",
-                        USDT_amount_start,
-                        USDT_amount_end - USDT_amount_start,
-                        (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start));
             }
         }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getDescription());
+        sb.append("\n");
+        sb.append(String.format("Будет использованно: %.3f USDT. Доход составит: %.3f USDT ( %.2f процентов).",
+                USDT_amount_start,
+                USDT_amount_end - USDT_amount_start,
+                (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start));
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Spread spread = (Spread) o;
+
+        return new EqualsBuilder().append(firstPair, spread.firstPair).append(firstTypeOrder, spread.firstTypeOrder).append(secondPair, spread.secondPair).append(secondTypeOrder, spread.secondTypeOrder).append(thirdPair, spread.thirdPair).append(thirdTypeOrder, spread.thirdTypeOrder).append(typeSpread, spread.typeSpread).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(firstPair).append(firstTypeOrder).append(secondPair).append(secondTypeOrder).append(thirdPair).append(thirdTypeOrder).append(typeSpread).toHashCode();
     }
 }

@@ -26,7 +26,7 @@ public class NetworkListConverter {
 
     public static NetworkListItem fromBinance(BinanceNetworkListItem networkListItem) {
         NetworkListItem newNetworkListItem = new NetworkListItem();
-        newNetworkListItem.setNetworkToken(networkListItem.getCoin());
+        newNetworkListItem.setNetworkToken(networkListItem.getNetwork());
         newNetworkListItem.setBlockchainToken(networkListItem.getNetwork());
         newNetworkListItem.setTypeDeposit(
                 !networkListItem.isSameAddress() ?

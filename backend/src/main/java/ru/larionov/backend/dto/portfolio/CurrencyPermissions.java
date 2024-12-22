@@ -10,4 +10,5 @@ public class CurrencyPermissions {
     private boolean tradeEnable;
     private boolean supportBorrow;
     private List<NetworkListItem> networkList;
+    private long timestamp;
 }

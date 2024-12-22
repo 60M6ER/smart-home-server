@@ -18,4 +18,6 @@ public interface ExchangeHandler {
 
     CurrencyPermissions getCurrencyPermissions(String currencyToken);
 
+    DepositAddress getDepositAddress(String currencyToken, String networkToken);
+
 }
