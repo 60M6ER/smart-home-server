@@ -165,16 +165,16 @@ public class SpreadScanner {
     @Scheduled(fixedRate = 100)
     public void scanSpreads() {
         synchronized (chainsMonitor) {
+            if (betweenChains.size() == 0) return;
             currIndex++;
             if (currIndex + 1 > betweenChains.size())
                 currIndex = 0;
-
+            ChainPairs chain = betweenChains.get(currIndex);
             Spread spread = new Spread(TypeSpread.BETWEEN_EXCHANGES);
-            ChainPairs chain = betweenChains.get(currIndex).getParentChain();
-            spread.setFeeInformation(getFee(chain.getBasePair().getVendor()));
-            spread.addChain(chain,
-                    exchangeHandlerService.getOrderBook(chain.getBasePair().getVendor(), chain.getBasePair()));
-            chain = betweenChains.get(currIndex);
+            ChainPairs pChain = chain.getParentChain();
+            spread.setFeeInformation(getFee(pChain.getBasePair().getVendor()));
+            spread.addChain(pChain,
+                    exchangeHandlerService.getOrderBook(pChain.getBasePair().getVendor(), pChain.getBasePair()));
             spread.addChain(chain,
                     exchangeHandlerService.getOrderBook(chain.getBasePair().getVendor(), chain.getBasePair()));
 

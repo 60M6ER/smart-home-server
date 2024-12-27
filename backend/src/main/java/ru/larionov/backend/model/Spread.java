@@ -15,14 +15,17 @@ public class Spread {
     private UUID id;
     private PairCurrency firstPair;
     private TypeOrder firstTypeOrder;
+    private OrderBook firstOrderBook;
     private double firstPrice;
     private double firstAmount;
     private PairCurrency secondPair;
     private TypeOrder secondTypeOrder;
+    private OrderBook secondOrderBook;
     private double secondPrice;
     private double secondAmount;
     private PairCurrency thirdPair;
     private TypeOrder thirdTypeOrder;
+    private OrderBook thirdOrderBook;
     private double thirdPrice;
     private double thirdAmount;
     private TypeSpread typeSpread;
@@ -53,85 +56,46 @@ public class Spread {
     }
 
     public void addChain(ChainPairs chainPair, OrderBook orderBook) {
-        if (typeSpread == TypeSpread.TRIANGLE) {
-            if (firstPair == null) {
-                firstPair = chainPair.getBasePair();
-                firstTypeOrder = chainPair.getTypeOrder();
-                OrderBookRow bestPriceByTypeOrder = orderBook.getBestPriceByTypeOrder(firstTypeOrder, 0);
-                firstPrice = bestPriceByTypeOrder.getPrice();
-                firstAmount = bestPriceByTypeOrder.getAmount();
-                USDT_amount_start = firstAmount * firstPrice;
-            } else if (secondPair == null) {
-                secondPair = chainPair.getBasePair();
-                secondTypeOrder = chainPair.getTypeOrder();
-                OrderBookRow bestPriceByTypeOrder = orderBook.getBestPriceByTypeOrder(secondTypeOrder, 0);
-                secondPrice = bestPriceByTypeOrder.getPrice();
-                secondAmount = bestPriceByTypeOrder.getAmount();
-                USDT_amount_start = Math.min(USDT_amount_start, getSecondAmountUSDT());
-            } else {
-                thirdPair = chainPair.getBasePair();
-                thirdTypeOrder = chainPair.getTypeOrder();
-                OrderBookRow bestPriceByTypeOrder = orderBook.getBestPriceByTypeOrder(thirdTypeOrder, 0);
-                thirdPrice = bestPriceByTypeOrder.getPrice();
-                thirdAmount = bestPriceByTypeOrder.getAmount();
-                USDT_amount_start = Math.min(USDT_amount_start, thirdAmount * thirdPrice);
+        if (firstPair == null) {
+            firstPair = chainPair.getBasePair();
+            firstTypeOrder = chainPair.getTypeOrder();
+            firstOrderBook = orderBook;
+        } else if (secondPair == null) {
+            secondPair = chainPair.getBasePair();
+            secondTypeOrder = chainPair.getTypeOrder();
+            secondOrderBook = orderBook;
+        } else {
+            thirdPair = chainPair.getBasePair();
+            thirdTypeOrder = chainPair.getTypeOrder();
+            thirdOrderBook = orderBook;
+        }
+    }
+
+    public void calculate() {
+        OrderBookRow firstRow = firstOrderBook.getBestPriceByTypeOrder(firstTypeOrder, 1);
+        OrderBookRow secondRow = secondOrderBook.getBestPriceByTypeOrder(secondTypeOrder, 1);
+        double a = (secondRow.getPrice() - firstRow.getPrice()) / firstRow.getPrice()
+                - (feeInformation.getTaker() + feeInformation.getMaker());
+        if (a > 0) {
+            state = SpreadState.WORKING;
+            USDT_amount_start = secondRow.getAmount();
+            USDT_amount_end = USDT_amount_start * (1 + a);
+            profit = USDT_amount_start * a;
+            profitPercent = a * 100;
+            if (maxProfit < profit) {
+                maxProfit = profit;
+                maxProfitPercent = profitPercent;
             }
         } else {
-            if (firstPair == null) {
-                firstPair = chainPair.getBasePair();
-                firstTypeOrder = chainPair.getTypeOrder();
-                OrderBookRow bestPriceByTypeOrder = orderBook.getBestPriceByTypeOrder(firstTypeOrder, 0);
-                firstPrice = bestPriceByTypeOrder.getPrice();
-                firstAmount = bestPriceByTypeOrder.getAmount();
-                USDT_amount_start = firstAmount * firstPrice;
-            } else {
-                secondPair = chainPair.getBasePair();
-                secondTypeOrder = chainPair.getTypeOrder();
-                OrderBookRow bestPriceByTypeOrder = orderBook.getBestPriceByTypeOrder(secondTypeOrder, 0);
-                secondPrice = bestPriceByTypeOrder.getPrice();
-                secondAmount = bestPriceByTypeOrder.getAmount();
-                USDT_amount_start = Math.min(USDT_amount_start, secondAmount * secondPrice);
-            }
-        }
-        if (USDT_amount_start >= 1 && typeSpread == TypeSpread.TRIANGLE && thirdPair != null && feeInformation != null) {
-            USDT_amount_end = calculateOperationAmount(USDT_amount_start, firstPrice, firstTypeOrder);
-            USDT_amount_end = calculateOperationAmount(USDT_amount_end, secondPrice, secondTypeOrder);
-            USDT_amount_end = calculateOperationAmount(USDT_amount_end, thirdPrice, thirdTypeOrder);
-        } else if (typeSpread == TypeSpread.BETWEEN_EXCHANGES && secondPair != null && feeInformation != null) {
-            USDT_amount_end = calculateOperationAmount(USDT_amount_start, firstPrice, firstTypeOrder);
-            USDT_amount_end = calculateOperationAmount(USDT_amount_end, secondPrice, secondTypeOrder);
-        }
-        if (USDT_amount_start > 0 && USDT_amount_end > 0) {
-            profit = USDT_amount_end - USDT_amount_start;
-            profitPercent = (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start;
-            maxProfit = profit;
-            maxProfitPercent = profitPercent;
+            state = SpreadState.FINISHED;
         }
     }
 
     public void updateWithAnother(Spread spread) {
-        firstPrice = spread.getFirstPrice();
-        firstAmount = spread.getFirstAmount();
-        secondPrice = spread.getSecondPrice();
-        secondAmount = spread.getSecondAmount();
-        if (typeSpread == TypeSpread.TRIANGLE) {
-            thirdPrice = spread.getThirdPrice();
-            thirdAmount = spread.getThirdAmount();
-        }
-        USDT_amount_start = spread.getUSDT_amount_start();
-        USDT_amount_end = spread.getUSDT_amount_end();
-        if (USDT_amount_start > 0 && USDT_amount_end > 0) {
-            profit = USDT_amount_end - USDT_amount_start;
-            profitPercent = (USDT_amount_end - USDT_amount_start) * 100 / USDT_amount_start;
-            if (profitPercent > maxProfitPercent) {
-                maxProfit = profit;
-                maxProfitPercent = profitPercent;
-            }
-        }
-        if (profit <= 0) {
-            dateFinish = spread.getDateCreate();
-            state = SpreadState.FINISHED;
-        }
+        firstOrderBook = spread.getFirstOrderBook();
+        secondOrderBook = spread.getSecondOrderBook();
+        thirdOrderBook = spread.getThirdOrderBook();
+        calculate();
     }
 
     private double getSecondAmountUSDT() {
