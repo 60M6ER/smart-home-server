@@ -177,7 +177,7 @@ public class SpreadScanner {
                     exchangeHandlerService.getOrderBook(pChain.getBasePair().getVendor(), pChain.getBasePair()));
             spread.addChain(chain,
                     exchangeHandlerService.getOrderBook(chain.getBasePair().getVendor(), chain.getBasePair()));
-
+            spread.calculate();
             addSpread(spread);
 
 //            if (spread.getUSDT_amount_end() > spread.getUSDT_amount_start()) {

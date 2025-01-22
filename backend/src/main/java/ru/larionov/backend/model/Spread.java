@@ -88,6 +88,7 @@ public class Spread {
             }
         } else {
             state = SpreadState.FINISHED;
+            dateFinish = new Date();
         }
     }
 

@@ -1,11 +1,13 @@
 package ru.larionov.backend.services.phemex;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phemex.client.PhemexClient;
 import com.phemex.client.impl.PhemexClientBuilder;
 import com.phemex.client.ws.PhemexMessageListener;
 import com.poloniex.api.client.spot.model.response.spot.Market;
 import com.poloniex.api.client.spot.rest.spot.SpotPoloRestClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.reactive.function.client.WebClient;
 import ru.larionov.backend.converter.*;
 import ru.larionov.backend.dto.portfolio.CurrencyPermissions;
 import ru.larionov.backend.exception.ExchangeHandlerException;
@@ -26,10 +28,13 @@ public class PhemexHandler implements ExchangeHandler, PhemexMessageListener {
     private final String SECRET;
 
     private final PhemexClient phemexClient;
+    private final ObjectMapper mapper;
+   // private final WebClient webClient;
 
     private Long spotID;
 
     public PhemexHandler(String API_KEY, String SECRET) {
+        mapper = new ObjectMapper();
         this.API_KEY = API_KEY;
         this.SECRET = SECRET;
 
@@ -68,7 +73,7 @@ public class PhemexHandler implements ExchangeHandler, PhemexMessageListener {
 
     @Override
     public List<PairCurrency> getPairs() {
-        //phemexClient.
+
 //        List<PairCurrency> pairCurrencies = poloRestClient.getMarkets().stream()
 //                .filter(market -> market.getState().equals("NORMAL"))
 //                .map(PairCurrencyConverter::fromPoloniexMarket)

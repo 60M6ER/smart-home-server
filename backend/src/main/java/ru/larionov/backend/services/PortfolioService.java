@@ -89,12 +89,13 @@ public class PortfolioService {
             } else {
                 markPrices.stream()
                         .filter(pairCurrency ->
-                                pairCurrency.getBaseCurrency().equals(savedCurrency.getName()))
+                                pairCurrency.getBaseCurrency().equals(savedCurrency.getName())
+                                        && pairCurrency.getQuoteCurrency().equals(MAIN_CURRENCY_NAME))
                         .findFirst()
                         .ifPresent(pairCurrency ->
-                                savedCurrency.setUsdEqual(
-                                        (savedCurrency.getAmount() + savedCurrency.getHoldAmount()) * pairCurrency.getMarkPrice()
-                                ));
+                            savedCurrency.setUsdEqual(
+                                    (savedCurrency.getAmount() + savedCurrency.getHoldAmount()) * pairCurrency.getMarkPrice()
+                            ));
             }
             usdBalance += savedCurrency.getUsdEqual();
             currencyRepository.save(savedCurrency);
